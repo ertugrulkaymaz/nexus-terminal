@@ -23,18 +23,12 @@ EDGAR_FEED   = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=
 COINGECKO    = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true"
 
 SYMBOLS = [
-    "AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSLA","JPM","LLY","V",
-    "UNH","XOM","AVGO","MA","JNJ","PG","HD","COST","ABBV","MRK",
-    "CVX","BAC","CRM","NFLX","PEP","ORCL","KO","TMO","WMT","ACN",
-    "MCD","ABT","ADBE","DHR","LIN","NKE","TXN","CSCO","QCOM","GS",
-    "DIS","AMGN","IBM","GE","HON","VZ","CAT","INTU","RTX","AMAT",
-    "SPGI","INTC","AMD","BLK","AXP","SBUX","NOW","ISRG","SYK","MDT",
-    "GILD","ADI","REGN","VRTX","LRCX","ELV","C","USB","WFC","PNC",
-    "COP","EOG","SLB","MPC","PSX","VLO","OXY","DVN","HES","BKR",
-    "JNJ","UNH","CVS","HCA","CNC","MOH","TMO","DHR","BSX","EW",
-    "UNP","CSX","NSC","FDX","UPS","DAL","AAL","UAL","LMT","NOC",
-    "GD","BA","NEE","DUK","SO","D","AEP","XEL","SPG","AMT",
-    "PLD","CCI","EQIX","PSA","NEM","FCX","NUE","ALB","CF","SHW",
+    "AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSLA","JPM","V","MA",
+    "UNH","XOM","JNJ","PG","HD","COST","ABBV","MRK","CVX","BAC",
+    "KO","PEP","WMT","DIS","NFLX","ADBE","CRM","AMD","GS","BLK",
+    "SBUX","GE","HON","CAT","BA","LMT","NEE","GD","UNP","FDX",
+    "AMGN","GILD","REGN","VRTX","MDT","SYK","ISRG","BSX","HCA","CVS",
+    "COP","XOM","SLB","OXY","DVN","NEM","FCX","SHW","NUE","ALB",
 ]
 
 # ── STATE ─────────────────────────────────────
@@ -149,7 +143,7 @@ async def fetch_quotes_loop():
                             await detect_whale(sym)
                 except:
                     pass
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(1.1)  # 60 req/min limit
             log.info(f"Cycle done. {len(quotes)} symbols loaded.")
             await asyncio.sleep(20)
 
