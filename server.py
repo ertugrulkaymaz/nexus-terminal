@@ -113,14 +113,14 @@ async def yahoo_loop():
     async with httpx.AsyncClient() as client:
         while True:
             updated = 0
-            # Fetch in batches of 20
-            for i in range(0, len(SYMBOLS), 20):
-                batch = SYMBOLS[i:i+20]
+            # Fetch in small batches of 5, 10 seconds apart
+            for i in range(0, len(SYMBOLS), 5):
+                batch = SYMBOLS[i:i+5]
                 results = await fetch_yahoo_batch(batch, client)
                 for sym, q in results.items():
                     price = q.get("regularMarketPrice", 0)
                     if price and price > 0:
-                        old = quotes.get(sym, {}).get("c", 0)
+                        prev = quotes.get(sym, {}).get("c", 0)
                         quotes[sym] = {
                             "c":  price,
                             "pc": q.get("regularMarketPreviousClose", price),
@@ -133,12 +133,12 @@ async def yahoo_loop():
                             "ts": int(time.time()),
                         }
                         updated += 1
-                        if old and abs(price - old) / old > 0.0005:
+                        if prev and abs(price - prev) / prev > 0.0005:
                             await broadcast({"type":"price","symbol":sym,"price":price,"data":quotes[sym]})
-                await asyncio.sleep(1)  # small delay between batches
+                await asyncio.sleep(10)  # 10 seconds between batches
 
             log.info(f"Yahoo: {updated}/{len(SYMBOLS)} symbols updated")
-            await asyncio.sleep(30)  # refresh every 30 seconds
+            await asyncio.sleep(60)  # wait 60s before next full cycle
 
 # ── SEC EDGAR ──────────────────────────────
 async def edgar_loop():
