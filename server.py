@@ -83,16 +83,30 @@ async def get_crypto():
 
 # ── YAHOO FINANCE QUOTE FETCHER ────────────
 async def fetch_yahoo_batch(symbols: list, client: httpx.AsyncClient) -> dict:
-    """Fetch multiple quotes in one Yahoo Finance API call"""
-    try:
-        syms = ",".join(symbols)
-        url  = f"{YF_BASE}/v7/finance/quote?symbols={syms}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketOpen,regularMarketDayHigh,regularMarketDayLow,regularMarketVolume,marketCap,trailingPE"
-        r    = await client.get(url, headers=YF_HEADERS, timeout=10)
-        if r.status_code == 200:
-            data = r.json()
-            return {q["symbol"]: q for q in data.get("quoteResponse", {}).get("result", []) if q.get("regularMarketPrice")}
-    except Exception as e:
-        log.warning(f"Yahoo batch error: {e}")
+    """Fetch multiple quotes - try multiple Yahoo endpoints"""
+    # Try v8 crumb-free endpoint first
+    endpoints = [
+        f"{YF_BASE}/v8/finance/quote?symbols={{syms}}&corsDomain=finance.yahoo.com&crumb=",
+        f"https://query2.finance.yahoo.com/v7/finance/quote?symbols={{syms}}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketOpen,regularMarketDayHigh,regularMarketDayLow,regularMarketVolume,marketCap",
+        f"{YF_BASE}/v7/finance/quote?symbols={{syms}}",
+    ]
+    syms = ",".join(symbols)
+    headers_list = [
+        {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36", "Accept": "application/json", "Accept-Language": "en-US,en;q=0.9", "Origin": "https://finance.yahoo.com", "Referer": "https://finance.yahoo.com/"},
+        {"User-Agent": "python-httpx/0.27.0", "Accept": "*/*"},
+    ]
+    for url_tmpl in endpoints:
+        for hdrs in headers_list:
+            try:
+                url = url_tmpl.replace("{syms}", syms)
+                r   = await client.get(url, headers=hdrs, timeout=10, follow_redirects=True)
+                if r.status_code == 200:
+                    data = r.json()
+                    results = data.get("quoteResponse", {}).get("result", [])
+                    if results:
+                        return {q["symbol"]: q for q in results if q.get("regularMarketPrice")}
+            except Exception as e:
+                pass
     return {}
 
 async def yahoo_loop():
