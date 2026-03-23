@@ -1,6 +1,6 @@
 """
-NEXUS Terminal Backend — Railway Production
-Optimized for free tier: 20 symbols, slow polling
+NEXUS Terminal Backend — Alpaca Market Data
+Real-time US equity data for all S&P 500 stocks
 """
 import asyncio, json, logging, time, os, re
 import httpx, xml.etree.ElementTree as ET
@@ -14,25 +14,35 @@ import uvicorn
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 log = logging.getLogger("nexus")
 
-API_KEY      = os.environ.get("FINNHUB_KEY", "d700iu1r01qjh1odpe6gd700iu1r01qjh1odpe70")
-PORT         = int(os.environ.get("PORT", 8000))
-FINNHUB_REST = "https://finnhub.io/api/v1"
-EDGAR_FEED   = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type={form}&dateb=&owner=include&count=20&search_text=&output=atom"
-COINGECKO    = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true"
+# ── CONFIG ─────────────────────────────────
+ALPACA_KEY    = os.environ.get("ALPACA_KEY",    "PKA7RRNT63NBN62X4FDDW4J6MD")
+ALPACA_SECRET = os.environ.get("ALPACA_SECRET", "2q8ATV4vAS3ifA8gBYqMCCCMEd4Xy6FmcRZuMftL92bte")
+ALPACA_DATA   = "https://data.alpaca.markets/v2"
+ALPACA_HEADS  = {"APCA-API-KEY-ID": ALPACA_KEY, "APCA-API-SECRET-KEY": ALPACA_SECRET}
+PORT          = int(os.environ.get("PORT", 8000))
 
-# Top 20 only — stays within free tier rate limit
+EDGAR_FEED  = "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type={form}&dateb=&owner=include&count=20&search_text=&output=atom"
+COINGECKO   = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true&include_market_cap=true"
+
 SYMBOLS = [
-    "AAPL","MSFT","NVDA","GOOGL","AMZN",
-    "META","TSLA","JPM","V","MA",
-    "JNJ","PG","KO","XOM","BAC",
-    "WMT","DIS","NFLX","GS","AMD",
+    "AAPL","MSFT","NVDA","GOOGL","AMZN","META","TSLA","JPM","V","MA",
+    "UNH","XOM","JNJ","PG","HD","COST","ABBV","MRK","CVX","BAC",
+    "KO","PEP","WMT","DIS","NFLX","ADBE","CRM","AMD","GS","BLK",
+    "SBUX","GE","HON","CAT","BA","LMT","NEE","GD","UNP","FDX",
+    "AMGN","GILD","REGN","VRTX","MDT","SYK","ISRG","BSX","HCA","CVS",
+    "COP","SLB","OXY","DVN","NEM","FCX","SHW","NUE","WFC","PNC",
+    "USB","TFC","COF","AXP","SPGI","MCO","ICE","CME","BK","STT",
+    "PRU","MET","AFL","ALL","PGR","TRV","CB","MMC","AON","V",
+    "PYPL","FIS","FISV","GPN","INTC","QCOM","TXN","AMAT","LRCX","KLAC",
+    "NOW","PANW","CRWD","FTNT","ADSK","ROP","SNPS","CDNS","MRVL","ANSS",
 ]
 
-quotes:       Dict[str, dict] = {}
-sec_filings:  List[dict]      = []
-crypto_data:  dict            = {}
-clients:      Set[WebSocket]  = set()
-seen_sec:     Set[str]        = set()
+# ── STATE ──────────────────────────────────
+quotes:      Dict[str, dict] = {}
+sec_filings: List[dict]      = []
+crypto_data: dict            = {}
+clients:     Set[WebSocket]  = set()
+seen_sec:    Set[str]        = set()
 
 app = FastAPI(title="NEXUS Terminal API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
@@ -50,6 +60,7 @@ async def broadcast(msg: dict):
 async def ws_endpoint(ws: WebSocket):
     await ws.accept()
     clients.add(ws)
+    log.info(f"Client connected. Total: {len(clients)}")
     await ws.send_json({"type":"snapshot","quotes":quotes,"sec":sec_filings[:20],"crypto":crypto_data})
     try:
         while True:
@@ -77,24 +88,57 @@ async def get_sec():
 async def get_crypto():
     return crypto_data
 
-async def quote_loop():
+# ── ALPACA QUOTE FETCHER ───────────────────
+async def fetch_alpaca_quotes():
+    """Fetch quotes from Alpaca — supports bulk requests, no rate limit issues"""
     async with httpx.AsyncClient() as client:
         while True:
-            for sym in SYMBOLS:
-                try:
-                    r = await client.get(f"{FINNHUB_REST}/quote?symbol={sym}&token={API_KEY}", timeout=5)
-                    d = r.json()
-                    if d and d.get("c") and d["c"] > 0:
-                        quotes[sym] = {"c":d["c"],"pc":d["pc"],"o":d["o"],"h":d["h"],"l":d["l"],"v":d.get("v",0),"ts":int(time.time())}
-                        liveP = d["c"]
-                        await broadcast({"type":"price","symbol":sym,"price":liveP,"data":quotes[sym]})
-                        log.info(f"{sym} = ${d['c']}")
-                except Exception as e:
-                    log.warning(f"{sym} error: {e}")
-                await asyncio.sleep(3)  # 20 req/min — well within limit
-            log.info(f"Cycle done. {len(quotes)} symbols.")
-            await asyncio.sleep(60)  # wait 60s before next full cycle
+            try:
+                # Alpaca supports bulk snapshot — all symbols in one request
+                syms_str = ",".join(SYMBOLS)
+                r = await client.get(
+                    f"{ALPACA_DATA}/stocks/snapshots",
+                    headers=ALPACA_HEADS,
+                    params={"symbols": syms_str, "feed": "iex"},
+                    timeout=15
+                )
+                if r.status_code == 200:
+                    data = r.json()
+                    updated = 0
+                    for sym, snap in data.items():
+                        try:
+                            dp = snap.get("dailyBar", {}) or snap.get("latestTrade", {}) or {}
+                            lp = snap.get("latestTrade", {}) or {}
+                            prev = snap.get("prevDailyBar", {}) or {}
+                            
+                            price = lp.get("p") or dp.get("c") or 0
+                            prev_close = prev.get("c") or price
+                            
+                            if price and price > 0:
+                                old = quotes.get(sym, {}).get("c", 0)
+                                quotes[sym] = {
+                                    "c":  price,
+                                    "pc": prev_close,
+                                    "o":  dp.get("o", price),
+                                    "h":  dp.get("h", price),
+                                    "l":  dp.get("l", price),
+                                    "v":  dp.get("v", 0),
+                                    "ts": int(time.time()),
+                                }
+                                updated += 1
+                                if old and abs(price - old) / old > 0.0001:
+                                    await broadcast({"type":"price","symbol":sym,"price":price,"data":quotes[sym]})
+                        except Exception as e:
+                            pass
+                    log.info(f"Alpaca: {updated} symbols updated")
+                else:
+                    log.warning(f"Alpaca snapshot error: {r.status_code} {r.text[:200]}")
+            except Exception as e:
+                log.warning(f"Alpaca fetch error: {e}")
+            
+            await asyncio.sleep(15)  # refresh every 15 seconds
 
+# ── SEC EDGAR SCRAPER ──────────────────────
 async def edgar_loop():
     forms = ["8-K","SC+13G","10-Q","4"]
     async with httpx.AsyncClient(headers={"User-Agent":"NEXUS research@nexus.io"}) as client:
@@ -145,6 +189,7 @@ async def edgar_loop():
                 await asyncio.sleep(5)
             await asyncio.sleep(120)
 
+# ── CRYPTO ────────────────────────────────
 async def crypto_loop():
     async with httpx.AsyncClient() as client:
         while True:
@@ -154,19 +199,24 @@ async def crypto_loop():
                 for cid, key in [("bitcoin","BTC"),("ethereum","ETH"),("solana","SOL"),("binancecoin","BNB")]:
                     if cid in data:
                         d = data[cid]
-                        crypto_data[key] = {"price":d.get("usd",0),"chg24":round(d.get("usd_24h_change",0),2),"ts":int(time.time())}
+                        crypto_data[key] = {
+                            "price": d.get("usd",0),
+                            "chg24": round(d.get("usd_24h_change",0),2),
+                            "ts":    int(time.time())
+                        }
                 log.info(f"Crypto: BTC=${crypto_data.get('BTC',{}).get('price','?')}")
                 await broadcast({"type":"crypto","data":crypto_data})
             except Exception as e:
                 log.warning(f"Crypto error: {e}")
             await asyncio.sleep(60)
 
+# ── STARTUP ───────────────────────────────
 @app.on_event("startup")
 async def startup():
-    asyncio.create_task(quote_loop())
+    asyncio.create_task(fetch_alpaca_quotes())
     asyncio.create_task(edgar_loop())
     asyncio.create_task(crypto_loop())
-    log.info("NEXUS Backend ready.")
+    log.info("NEXUS Backend ready — Alpaca + SEC + Crypto")
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host="0.0.0.0", port=PORT, reload=False)
