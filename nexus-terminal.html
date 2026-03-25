@@ -1831,16 +1831,7 @@ function renderTicker() {
 }
 
 function fetchTickerData() {
-  // 1. CoinGecko — BTC & ETH (free, no key)
-  fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true')
-    .then(function(r){return r.json();})
-    .then(function(d){
-      var btc = TICKER_DATA.find(function(x){return x.l==='BTC/USD';});
-      var eth = TICKER_DATA.find(function(x){return x.l==='ETH/USD';});
-      if (btc && d.bitcoin) { btc.p = d.bitcoin.usd; btc.c = +d.bitcoin.usd_24h_change.toFixed(2); }
-      if (eth && d.ethereum){ eth.p = d.ethereum.usd; eth.c = +d.ethereum.usd_24h_change.toFixed(2); }
-      renderTicker();
-    }).catch(function(){});
+  // Crypto comes from Railway backend via pollBackend
 
   // Finnhub ticker — backend varsa oradan gelir, yoksa atla
   if (!backendAlive) return;
