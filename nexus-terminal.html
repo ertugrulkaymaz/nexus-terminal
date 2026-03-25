@@ -6,62 +6,6 @@
 <title>NEXUS Terminal — Live</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
-// ═══════════════════════════════════════════
-// REAL NEWS FROM BACKEND RSS
-// ═══════════════════════════════════════════
-function fetchRealNews() {
-  fetch('https://nexus-terminal-production-6606.up.railway.app/news?limit=30')
-    .then(function(r){ return r.json(); })
-    .then(function(d) {
-      if (!d.items || !d.items.length) return;
-      // Convert backend format to NEWS_DATA format
-      var converted = d.items.map(function(n, idx) {
-        var sent = n.sent || 'neu';
-        var emoji = sent==='pos'?'📈':sent==='neg'?'📉':'📊';
-        return {
-          id: 1000+idx,
-          cat: n.tickers&&n.tickers[0] ? 'stock' : 'macro',
-          src: n.source || 'News',
-          title: n.title || '',
-          sym: n.tickers&&n.tickers[0] ? n.tickers[0] : '',
-          sent: sent,
-          time: n.ts ? Math.floor((Date.now()/1000 - n.ts)/60)+'dk' : '—',
-          emoji: emoji,
-          link: n.link || '#',
-          ts: n.ts || 0,
-        };
-      });
-      // Update NEWS_DATA
-      if (typeof NEWS_DATA !== 'undefined') {
-        NEWS_DATA = converted;
-      }
-      // Re-render if on news tab
-      if (typeof renderNewsGrid === 'function') renderNewsGrid(converted);
-      if (typeof renderNewsList === 'function') renderNewsList(converted);
-      // Also update news flow panel
-      var nf = document.getElementById('newsfeed');
-      if (nf) {
-        nf.innerHTML = '';
-        converted.slice(0,8).forEach(function(n) {
-          var div = document.createElement('div');
-          div.className = 'nitem';
-          div.style.cursor = 'pointer';
-          div.onclick = function(){ if(n.link&&n.link!=='#') window.open(n.link,'_blank'); };
-          var src = document.createElement('span'); src.className='nsrc'; src.textContent=(n.src||'NEWS').slice(0,14).toUpperCase();
-          var st = document.createElement('span'); st.className='nst '+(n.sent||'neu');
-          st.textContent = n.sent==='pos'?'▲POZ':n.sent==='neg'?'▼NEG':'■NÖT';
-          var hd = document.createElement('div'); hd.style.marginBottom='2px';
-          hd.appendChild(src); hd.appendChild(st);
-          var tit = document.createElement('div'); tit.className='ntit'; tit.textContent=n.title;
-          var tm = document.createElement('div'); tm.className='ntm'; tm.textContent=n.time+' önce';
-          div.appendChild(hd); div.appendChild(tit); div.appendChild(tm);
-          nf.appendChild(div);
-        });
-      }
-    })
-    .catch(function(e){ console.warn('News fetch error:', e); });
-}
-
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -461,18 +405,7 @@ tr:hover td{background:var(--bg2)}
             <div class="sug" onclick="askNLP('Teknik analiz yap')">Teknik</div>
             <div class="sug" onclick="askNLP('Rakiplerle karşılaştır')">Rakip</div>
           </div>
-          <div style="margin-top:8px">
-            <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:1px;margin-bottom:4px">GEMINI API KEY (ücretsiz AI)</div>
-            <div style="display:flex;gap:4px">
-              <input id="gemini-key-input" type="password" placeholder="AIza..." 
-                style="flex:1;background:var(--bg2);border:1px solid var(--ln2);border-radius:3px;color:var(--t0);font-family:var(--mn);font-size:10px;padding:4px 8px;outline:none">
-              <button onclick="window.GEMINI_API_KEY=document.getElementById('gemini-key-input').value;localStorage.setItem('gemini_key',window.GEMINI_API_KEY);this.textContent='✓';this.style.color='var(--gr)'" 
-                style="background:var(--bg2);border:1px solid var(--ln2);border-radius:3px;color:var(--t2);font-family:var(--mn);font-size:10px;padding:4px 8px;cursor:pointer">KAYDET</button>
-            </div>
-            <div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:3px">
-              <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--ac)">aistudio.google.com</a> — ücretsiz key al
-            </div>
-          </div>
+
         </div>
         <div class="rs">
           <div class="rl">CROWD SENTIMENT</div>
@@ -2181,7 +2114,7 @@ function runNLP() {
 
   // Gemini 1.5 Flash — ucretsiz, key gerekmez (demo mode)
   // Gercek kullanim icin: aistudio.google.com'dan ucretsiz key al
-  var GEMINI_KEY = window.GEMINI_API_KEY || '';
+  var GEMINI_KEY = window.GEMINI_API_KEY || 'AIzaSyA-DUwWEcOm7qV795Pvb1RIw9BTlCR-tN8';
   
   if (!GEMINI_KEY) {
     // Gemini key yoksa akilli offline analiz yap
@@ -4558,6 +4491,73 @@ function renderMacroExtended() {
 
 
 
+</script>
+
+<script>
+// ═══════════════════════════════════════════
+// REAL NEWS FROM BACKEND - runs after all code loaded
+// ═══════════════════════════════════════════
+function fetchRealNews() {
+  fetch('https://nexus-terminal-production-6606.up.railway.app/news?limit=50')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d.items || !d.items.length) return;
+      var converted = d.items.map(function(n, i) {
+        var sent = n.sent || 'neu';
+        return {
+          id: 2000+i,
+          cat: n.tickers&&n.tickers[0] ? 'stock' : 'macro',
+          src: n.source || 'News',
+          title: n.title || '',
+          sym: n.tickers&&n.tickers[0] ? n.tickers[0] : '',
+          sent: sent,
+          time: n.ts ? Math.floor((Date.now()/1000 - n.ts)/60)+'dk' : n.time||'',
+          emoji: sent==='pos'?'📈':sent==='neg'?'📉':'📊',
+          link: n.link || '#',
+          ts: n.ts || 0,
+        };
+      });
+      // Replace NEWS_DATA
+      NEWS_DATA = converted;
+      // Update news flow sidebar
+      var nf = document.getElementById('newsfeed');
+      if (nf) {
+        nf.innerHTML = '';
+        converted.slice(0,8).forEach(function(n) {
+          var div = document.createElement('div');
+          div.className = 'nitem';
+          div.style.cursor = 'pointer';
+          if (n.link && n.link !== '#') div.onclick = function(){ window.open(n.link,'_blank'); };
+          var hd = document.createElement('div');
+          hd.style.marginBottom = '2px';
+          var src = document.createElement('span');
+          src.className = 'nsrc';
+          src.textContent = (n.src||'NEWS').slice(0,14).toUpperCase();
+          var st = document.createElement('span');
+          st.className = 'nst ' + n.sent;
+          st.textContent = n.sent==='pos'?'▲POZ':n.sent==='neg'?'▼NEG':'■NÖT';
+          hd.appendChild(src); hd.appendChild(st);
+          var tit = document.createElement('div');
+          tit.className = 'ntit';
+          tit.textContent = n.title;
+          var tm = document.createElement('div');
+          tm.className = 'ntm';
+          tm.textContent = (n.time||'') + ' önce';
+          div.appendChild(hd); div.appendChild(tit); div.appendChild(tm);
+          nf.appendChild(div);
+        });
+      }
+      // Re-render news panel if open
+      if (typeof filterNews === 'function') filterNews();
+    })
+    .catch(function(e){ console.warn('News error:', e); });
+}
+
+// Auto-fetch on load and every 2 minutes
+window.addEventListener('load', function() {
+  setTimeout(fetchRealNews, 3000);
+  setInterval(fetchRealNews, 120000);
+});
 </script>
 </body>
 </html>
