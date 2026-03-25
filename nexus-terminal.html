@@ -907,11 +907,14 @@ tr:hover td{background:var(--bg2)}
         <div style="display:flex;flex-direction:column;gap:6px" id="ai-quick-analysis"></div>
         <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin:16px 0 10px">SOHBET İSTATİSTİKLERİ</div>
         <div id="ai-stats"></div>
-        <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin:16px 0 10px">API AYARI</div>
+        <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin:16px 0 10px">AI MOTORU</div>
         <div style="background:var(--bg2);border-radius:6px;padding:10px">
-          <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:6px">Anthropic API Key</div>
-          <input id="ai-api-key" type="password" placeholder="sk-ant-..." style="width:100%;background:var(--bg3);border:1px solid var(--ln2);border-radius:3px;color:var(--t0);font-family:var(--mn);font-size:10px;padding:6px 8px;outline:none" oninput="saveAPIKey(this.value)">
-          <div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:5px" id="ai-key-status">● Key girilmedi</div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--gr);animation:pulse 2s infinite"></div>
+            <span style="font-family:var(--mn);font-size:10px;color:var(--gr)">Groq AI Aktif</span>
+          </div>
+          <div style="font-family:var(--mn);font-size:9px;color:var(--t3)">Model: Llama 3.1 8B</div>
+          <div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:3px">Ücretsiz · Sınırsız · Hızlı</div>
         </div>
       </div>
     </div>
@@ -4175,7 +4178,7 @@ function renderAIStats() {
   var el = document.getElementById('ai-stats'); if(!el) return;
   el.innerHTML = [
     {l:'Toplam Soru',v:aiMessageCount},
-    {l:'Model',v:'claude-sonnet-4-20250514'},
+    {l:'Model',v:'Llama 3.1 (Groq)'},
     {l:'Dil',v:'Türkçe / English'},
   ].map(function(s){
     return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--ln)">'
@@ -4232,19 +4235,8 @@ function sendAIMessage() {
   // Build context about current market
   var ctx = buildMarketContext();
   
-  if (aiAPIKey && aiAPIKey.startsWith('sk-ant-')) {
-    // Real Anthropic API call
-    callAnthropicAPI(text, ctx, typingId);
-  } else {
-    // Simulate with smart local responses
-    setTimeout(function(){
-      removeTyping(typingId);
-      var resp = generateSmartResponse(text, ctx);
-      appendAIMessage('bot', resp);
-      aiMessages.push({role:'assistant', content:resp});
-      aiIsLoading = false;
-    }, 800+Math.random()*1200);
-  }
+  // Use Groq API
+  callGroqAPI(text, ctx, typingId);
 }
 
 function buildMarketContext() {
@@ -4260,7 +4252,7 @@ function callAnthropicAPI(userText, ctx, typingId) {
   var systemPrompt = 'Sen NEXUS Terminal\'in yapay zeka finans asistanısın. Türkçe yanıt ver. Şu an kullanıcı '+ctx.sym+' ('+ctx.name+') hissesini izliyor. Mevcut fiyat: $'+ctx.price.toFixed(2)+', Değişim: %'+ctx.pct+', RSI(14): '+(ctx.rsi||'—')+'. Yanıtlarını kısa ve net tut. Yatırım tavsiyesi vermediğini, bilgilendirme yaptığını belirt.';
   
   var body = {
-    model:'claude-sonnet-4-20250514',
+    model:'Llama 3.1 (Groq)',
     max_tokens:800,
     system: systemPrompt,
     messages: aiMessages.slice(-10) // last 10 messages for context
@@ -4279,6 +4271,44 @@ function callAnthropicAPI(userText, ctx, typingId) {
   }).catch(function(err){
     removeTyping(typingId);
     appendAIMessage('bot', '⚠️ API bağlantısı başarısız. Lütfen API key\'inizi kontrol edin. Hata: '+err.message);
+    aiIsLoading = false;
+  });
+}
+
+function callGroqAPI(userText, ctx, typingId) {
+  var systemPrompt = 'Sen NEXUS Terminal finansal AI asistanısın. Kısa, net, Türkçe yanıt ver. '
+    + 'Seçili hisse: ' + ctx.sym + ' | Fiyat: $' + (ctx.price||'?') + ' | Değişim: ' + (ctx.pct||'?') + '% | RSI: ' + (ctx.rsi||'?');
+
+  fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer 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'
+    },
+    body: JSON.stringify({
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        {role: 'system', content: systemPrompt},
+      ].concat(aiMessages.slice(-6)),
+      max_tokens: 500,
+      temperature: 0.4
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    removeTyping(typingId);
+    var resp = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (!resp) resp = generateSmartResponse(userText, ctx);
+    resp = resp.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+    appendAIMessage('bot', resp);
+    aiMessages.push({role:'assistant', content:resp});
+    aiIsLoading = false;
+  })
+  .catch(function(err) {
+    removeTyping(typingId);
+    var resp = generateSmartResponse(userText, ctx);
+    appendAIMessage('bot', resp);
+    aiMessages.push({role:'assistant', content:resp});
     aiIsLoading = false;
   });
 }
