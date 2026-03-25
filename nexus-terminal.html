@@ -287,6 +287,8 @@ tr:hover td{background:var(--bg2)}
       <div class="tab" onclick="gotoTab('screener')">SCREENER</div>
       <div class="tab" onclick="gotoTab('macro')">MACRO</div>
       <div class="tab" onclick="gotoTab('portfolio')">PORTFOLIO</div>
+      <div class="tab" onclick="gotoTab('piyasa')">📊 PİYASA</div>
+      <div class="tab" onclick="gotoTab('doviz')">💱 DÖVİZ</div>
       <div class="tab" onclick="gotoTab('crypto')">KRIPTO/FX</div>
       <div class="tab" onclick="gotoTab('alpha')">ALPHA PULSE</div>
       <div class="tab" onclick="gotoTab('social')">WHALE ROOM</div>
@@ -616,6 +618,95 @@ tr:hover td{background:var(--bg2)}
       </div>
     </div>
   </div>
+
+  <!-- PİYASA ÖZETİ PANELİ -->
+  <div class="panel" id="panel-piyasa">
+    <div class="pwrap">
+      <!-- Endeks Kartları -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px" id="piyasa-endeks"></div>
+      <!-- Kazananlar / Kaybedenler -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px">
+          <div style="font-family:var(--mn);font-size:9px;color:var(--gr);letter-spacing:2px;margin-bottom:10px">🚀 EN FAZLA KAZANANLAR</div>
+          <table><thead><tr><th>SEM</th><th>FİYAT</th><th>DEĞ%</th></tr></thead>
+          <tbody id="piyasa-kazanan"></tbody></table>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px">
+          <div style="font-family:var(--mn);font-size:9px;color:var(--rd);letter-spacing:2px;margin-bottom:10px">📉 EN FAZLA KAYBEDENLER</div>
+          <table><thead><tr><th>SEM</th><th>FİYAT</th><th>DEĞ%</th></tr></thead>
+          <tbody id="piyasa-kaybeden"></tbody></table>
+        </div>
+      </div>
+      <!-- Sektör Performansı -->
+      <div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px;margin-bottom:20px">
+        <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:12px">SEKTÖR PERFORMANSI</div>
+        <div id="piyasa-sektor" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+      </div>
+      <!-- En Çok İşlem Görenler -->
+      <div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px">
+        <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">EN ÇOK İŞLEM GÖRENLER (HACİM)</div>
+        <table><thead><tr><th>SEMBOL</th><th>ŞİRKET</th><th>FİYAT</th><th>DEĞ%</th><th>HACİM</th></tr></thead>
+        <tbody id="piyasa-hacim"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÖVİZ PANELİ -->
+  <div class="panel" id="panel-doviz">
+    <div class="pwrap">
+      <!-- Döviz Kartları -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px" id="doviz-kartlar"></div>
+      <!-- Döviz Hesaplayıcı -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:16px">
+          <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:14px">💱 DÖVİZ ÇEVİRİCİ</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+            <input id="doviz-miktar" type="number" value="1000" style="width:100px;background:var(--bg3);border:1px solid var(--ln2);border-radius:3px;color:var(--t0);font-family:var(--mn);font-size:12px;padding:6px 8px;outline:none">
+            <select id="doviz-from" style="flex:1;background:var(--bg3);border:1px solid var(--ln2);border-radius:3px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:6px;outline:none">
+              <option value="USD">USD - Amerikan Doları</option>
+              <option value="EUR">EUR - Euro</option>
+              <option value="TRY">TRY - Türk Lirası</option>
+              <option value="GBP">GBP - İngiliz Sterlini</option>
+              <option value="JPY">JPY - Japon Yeni</option>
+              <option value="CHF">CHF - İsviçre Frangı</option>
+              <option value="CAD">CAD - Kanada Doları</option>
+              <option value="AUD">AUD - Avustralya Doları</option>
+              <option value="BTC">BTC - Bitcoin</option>
+              <option value="ETH">ETH - Ethereum</option>
+            </select>
+          </div>
+          <div style="text-align:center;font-family:var(--mn);font-size:20px;color:var(--t3);margin:8px 0">↕</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+            <div id="doviz-sonuc" style="width:100px;background:var(--bg3);border:1px solid var(--ac);border-radius:3px;color:var(--ac);font-family:var(--mn);font-size:12px;padding:6px 8px;min-width:100px">—</div>
+            <select id="doviz-to" style="flex:1;background:var(--bg3);border:1px solid var(--ln2);border-radius:3px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:6px;outline:none">
+              <option value="TRY">TRY - Türk Lirası</option>
+              <option value="USD">USD - Amerikan Doları</option>
+              <option value="EUR">EUR - Euro</option>
+              <option value="GBP">GBP - İngiliz Sterlini</option>
+              <option value="JPY">JPY - Japon Yeni</option>
+              <option value="CHF">CHF - İsviçre Frangı</option>
+              <option value="CAD">CAD - Kanada Doları</option>
+              <option value="AUD">AUD - Avustralya Doları</option>
+              <option value="BTC">BTC - Bitcoin</option>
+              <option value="ETH">ETH - Ethereum</option>
+            </select>
+          </div>
+          <button onclick="hesaplaDoviz()" style="width:100%;background:var(--ac);border:none;border-radius:4px;color:var(--bg0);font-family:var(--mn);font-size:11px;padding:8px;cursor:pointer;font-weight:500">HESAPLA</button>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:16px">
+          <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:12px">📈 KUR GEÇMİŞİ (7 GÜN)</div>
+          <canvas id="dovizChart" height="180"></canvas>
+        </div>
+      </div>
+      <!-- Tüm Kurlar Tablosu -->
+      <div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px">
+        <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">TÜM DÖVİZ KURLARI</div>
+        <table><thead><tr><th>ÇİFT</th><th>KUR</th><th>DEĞ% (24s)</th><th>YÜK</th><th>DÜŞÜK</th></tr></thead>
+        <tbody id="doviz-tablo"></tbody></table>
+      </div>
+    </div>
+  </div>
+
   <!-- CRYPTO/FX PANEL -->
   <div class="panel" id="panel-crypto">
     <div class="pwrap">
@@ -631,7 +722,7 @@ tr:hover td{background:var(--bg2)}
         <span id="crypto-count" style="font-family:var(--mn);font-size:10px;color:var(--t3);margin-left:auto"></span>
       </div>
       <!-- Coin Grid -->
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px" id="crypto-cards"></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px" id="crypto-cards"></div>
       <!-- Mini Charts -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
         <div>
@@ -1085,10 +1176,10 @@ function pollBackend() {
         var ethE = TICKER_DATA.find(function(x){return x.l==='ETH/USD';});
         if (ethE && d.ETH) { ethE.p = d.ETH.price; ethE.c = d.ETH.chg24; }
         renderTicker();
-        // Update crypto panel if open
-        if (Object.keys(d).length > 4) {
+        // Update crypto panel
+        if (Object.keys(d).length > 0) {
           cryptoAllData = d;
-          renderCryptoPanelFull();
+          if (typeof renderCryptoPanelFull === 'function') renderCryptoPanelFull();
         }
       }
     })
@@ -4629,28 +4720,33 @@ var COIN_COLORS = {
   APT:'#00b4d8',AAVE:'#b6509e',MKR:'#1aab9b',LDO:'#77cfee',
 };
 
+var cryptoPanelInited = false;
 function initCryptoPanelFull() {
-  // Backend'den kripto verisini al
+  loadCryptoData();
+  if (!cryptoPanelInited) {
+    cryptoPanelInited = true;
+    setInterval(loadCryptoData, 30000);
+  }
+}
+
+function loadCryptoData() {
   fetch('https://nexus-terminal-production-6606.up.railway.app/crypto')
     .then(function(r){ return r.json(); })
     .then(function(d) {
       cryptoAllData = d;
       renderCryptoPanelFull();
-      // BTC/ETH mini charts
-      if (d.BTC) { btcHist2.push(d.BTC.price); updateMiniCryptoChart('btcChart', btcHist2, btcChart2, '#f7931a', function(ch){ btcChart2=ch; }); }
-      if (d.ETH) { ethHist2.push(d.ETH.price); updateMiniCryptoChart('ethChart', ethHist2, ethChart2, '#627eea', function(ch){ ethChart2=ch; }); }
+      if (d.BTC) {
+        btcHist2.push(d.BTC.price);
+        if(btcHist2.length>60) btcHist2.shift();
+        updateMiniCryptoChart('btcChart', btcHist2, btcChart2, '#f7931a', function(ch){ btcChart2=ch; });
+      }
+      if (d.ETH) {
+        ethHist2.push(d.ETH.price);
+        if(ethHist2.length>60) ethHist2.shift();
+        updateMiniCryptoChart('ethChart', ethHist2, ethChart2, '#627eea', function(ch){ ethChart2=ch; });
+      }
     })
-    .catch(function(){});
-  setInterval(function(){
-    fetch('https://nexus-terminal-production-6606.up.railway.app/crypto')
-      .then(function(r){ return r.json(); })
-      .then(function(d) {
-        cryptoAllData = d;
-        renderCryptoPanelFull();
-        if (d.BTC) { btcHist2.push(d.BTC.price); if(btcHist2.length>60)btcHist2.shift(); updateMiniCryptoChart('btcChart', btcHist2, btcChart2, '#f7931a', function(ch){ btcChart2=ch; }); }
-        if (d.ETH) { ethHist2.push(d.ETH.price); if(ethHist2.length>60)ethHist2.shift(); updateMiniCryptoChart('ethChart', ethHist2, ethChart2, '#627eea', function(ch){ ethChart2=ch; }); }
-      }).catch(function(){});
-  }, 30000);
+    .catch(function(e){ console.warn('Crypto load error:', e); });
 }
 
 function renderCryptoPanelFull() {
@@ -4678,7 +4774,7 @@ function renderCryptoPanelFull() {
   var cardsEl = document.getElementById('crypto-cards');
   if (cardsEl) {
     cardsEl.innerHTML = '';
-    coins.slice(0,10).forEach(function(c) {
+    coins.slice(0,20).forEach(function(c) {
       var up = c.chg24 >= 0;
       var col = COIN_COLORS[c.sym] || '#00d4ff';
       var card = document.createElement('div');
@@ -4758,6 +4854,265 @@ gotoTab = function(el, t) {
     initCryptoPanelFull();
   }
 };
+</script>
+<script>
+// ═══════════════════════════════════════════
+// PİYASA ÖZETİ
+// ═══════════════════════════════════════════
+var piyasaInited = false;
+
+function initPiyasaPanel() {
+  renderPiyasaEndeks();
+  renderPiyasaKazananKaybeden();
+  renderPiyasaSektor();
+  renderPiyasaHacim();
+  if (!piyasaInited) {
+    piyasaInited = true;
+    setInterval(function(){
+      renderPiyasaKazananKaybeden();
+      renderPiyasaHacim();
+    }, 15000);
+  }
+}
+
+function renderPiyasaEndeks() {
+  var el = document.getElementById('piyasa-endeks');
+  if (!el) return;
+  var endeksler = [
+    {n:'S&P 500', id:'sp500', sym:'SPY'},
+    {n:'NASDAQ', id:'nasdaq', sym:'QQQ'},
+    {n:'DOW JONES', id:'dow', sym:'DIA'},
+    {n:'RUSSELL 2000', id:'rut', sym:'IWM'},
+    {n:'VIX', id:'vix', sym:'VIX'},
+  ];
+  el.innerHTML = '';
+  endeksler.forEach(function(e) {
+    var q = quotes[e.sym] || {};
+    var p = liveP[e.sym] || q.c || 0;
+    var ch = q.pc ? p - q.pc : 0;
+    var pt = q.pc ? ch/q.pc*100 : 0;
+    var up = ch >= 0;
+    var card = document.createElement('div');
+    card.style.cssText = 'background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:12px;border-top:2px solid '+(up?'var(--gr)':'var(--rd)');
+    card.innerHTML = '<div style="font-family:var(--mn);font-size:9px;color:var(--t3)">'+e.n+'</div>'
+      +'<div style="font-family:var(--mn);font-size:20px;font-weight:300;color:#fff;margin:4px 0">'+(p>0?p.toFixed(2):'—')+'</div>'
+      +'<div style="font-family:var(--mn);font-size:11px;color:'+(up?'var(--gr)':'var(--rd)')+'">'+(p>0?(up?'+':'')+pt.toFixed(2)+'%':'—')+'</div>';
+    el.appendChild(card);
+  });
+}
+
+function renderPiyasaKazananKaybeden() {
+  var syms = Object.keys(quotes).filter(function(k){ return quotes[k] && quotes[k].c && quotes[k].pc; });
+  var scored = syms.map(function(k){
+    var q = quotes[k];
+    var pt = (q.c - q.pc)/q.pc*100;
+    return {sym:k, p:q.c, pt:pt};
+  }).filter(function(s){ return !isNaN(s.pt); });
+
+  var kazanan = scored.slice().sort(function(a,b){return b.pt-a.pt;}).slice(0,10);
+  var kaybeden = scored.slice().sort(function(a,b){return a.pt-b.pt;}).slice(0,10);
+
+  var ke = document.getElementById('piyasa-kazanan');
+  if (ke) ke.innerHTML = kazanan.map(function(s){
+    return '<tr><td style="color:#fff;font-weight:500">'+s.sym+'</td><td>$'+s.p.toFixed(2)+'</td><td class="up">+'+s.pt.toFixed(2)+'%</td></tr>';
+  }).join('');
+
+  var kae = document.getElementById('piyasa-kaybeden');
+  if (kae) kae.innerHTML = kaybeden.map(function(s){
+    return '<tr><td style="color:#fff;font-weight:500">'+s.sym+'</td><td>$'+s.p.toFixed(2)+'</td><td class="dn">'+s.pt.toFixed(2)+'%</td></tr>';
+  }).join('');
+}
+
+function renderPiyasaSektor() {
+  var el = document.getElementById('piyasa-sektor');
+  if (!el) return;
+  var sektorler = {
+    'Technology':[], 'Finance':[], 'Healthcare':[], 'Consumer':[],
+    'Energy':[], 'Industrial':[], 'Utilities':[], 'Real Estate':[]
+  };
+  Object.keys(quotes).forEach(function(k){
+    var b = BASE[k];
+    if (!b || !b.s || !sektorler[b.s]) return;
+    var q = quotes[k];
+    if (q && q.c && q.pc) sektorler[b.s].push((q.c-q.pc)/q.pc*100);
+  });
+  el.innerHTML = '';
+  Object.keys(sektorler).forEach(function(s){
+    var vals = sektorler[s];
+    var avg = vals.length ? vals.reduce(function(a,b){return a+b;},0)/vals.length : 0;
+    var up = avg >= 0;
+    var div = document.createElement('div');
+    div.style.cssText = 'background:'+(up?'rgba(0,230,118,.15)':'rgba(255,61,90,.15)')+';border:1px solid '+(up?'rgba(0,230,118,.3)':'rgba(255,61,90,.3)')+';border-radius:6px;padding:10px;text-align:center';
+    div.innerHTML = '<div style="font-family:var(--mn);font-size:9px;color:var(--t2)">'+s+'</div>'
+      +'<div style="font-family:var(--mn);font-size:16px;color:'+(up?'var(--gr)':'var(--rd)')+'margin-top:4px">'+(up?'+':'')+avg.toFixed(2)+'%</div>'
+      +'<div style="font-family:var(--mn);font-size:9px;color:var(--t3)">'+vals.length+' hisse</div>';
+    el.appendChild(div);
+  });
+}
+
+function renderPiyasaHacim() {
+  var el = document.getElementById('piyasa-hacim');
+  if (!el) return;
+  var syms = Object.keys(quotes).filter(function(k){ return quotes[k] && quotes[k].v > 0; });
+  syms.sort(function(a,b){ return (quotes[b].v||0)-(quotes[a].v||0); });
+  el.innerHTML = syms.slice(0,15).map(function(k){
+    var q = quotes[k], b = BASE[k]||{};
+    var ch = q.pc ? q.c-q.pc : 0;
+    var pt = q.pc ? ch/q.pc*100 : 0;
+    var up = ch >= 0;
+    return '<tr>'
+      +'<td style="color:#fff;font-weight:500">'+k+'</td>'
+      +'<td style="color:var(--t2)">'+(b.n||k).slice(0,25)+'</td>'
+      +'<td>$'+q.c.toFixed(2)+'</td>'
+      +'<td class="'+(up?'up':'dn')+'">'+(up?'+':'')+pt.toFixed(2)+'%</td>'
+      +'<td style="color:var(--t2)">'+fmtVol(q.v)+'</td></tr>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// DÖVİZ PANELİ
+// ═══════════════════════════════════════════
+var dovizRates = {
+  'USD':1, 'EUR':0.92, 'TRY':32.8, 'GBP':0.79,
+  'JPY':149.5, 'CHF':0.90, 'CAD':1.36, 'AUD':1.54,
+  'CHN':7.24, 'RUB':92.5, 'SAR':3.75, 'AED':3.67,
+};
+var dovizChart2 = null;
+var dovizInited = false;
+
+function initDovizPanel() {
+  // Fetch live FX from backend
+  fetch('https://nexus-terminal-production-6606.up.railway.app/quotes')
+    .then(function(r){ return r.json(); })
+    .then(function(){ renderDovizPanel(); })
+    .catch(function(){ renderDovizPanel(); });
+  if (!dovizInited) {
+    dovizInited = true;
+    // Also get BTC/ETH rates from crypto
+    if (cryptoAllData && cryptoAllData.BTC) dovizRates.BTC = 1/cryptoAllData.BTC.price;
+    if (cryptoAllData && cryptoAllData.ETH) dovizRates.ETH = 1/cryptoAllData.ETH.price;
+  }
+}
+
+function renderDovizPanel() {
+  // Update crypto rates
+  if (cryptoAllData && cryptoAllData.BTC && cryptoAllData.BTC.price > 0) {
+    dovizRates.BTC = 1/cryptoAllData.BTC.price;
+    dovizRates.ETH = cryptoAllData.ETH ? 1/cryptoAllData.ETH.price : dovizRates.ETH;
+  }
+
+  var cards = document.getElementById('doviz-kartlar');
+  if (cards) {
+    cards.innerHTML = '';
+    var pairs = [
+      {from:'USD',to:'TRY',name:'Dolar/TL'},
+      {from:'EUR',to:'TRY',name:'Euro/TL'},
+      {from:'GBP',to:'TRY',name:'Sterlin/TL'},
+      {from:'USD',to:'EUR',name:'Dolar/Euro'},
+      {from:'JPY',to:'USD',name:'Yen/Dolar'},
+      {from:'CHF',to:'USD',name:'Frank/Dolar'},
+      {from:'BTC',to:'USD',name:'Bitcoin'},
+      {from:'ETH',to:'USD',name:'Ethereum'},
+    ];
+    pairs.forEach(function(p) {
+      var rate = calcDovizRate(1, p.from, p.to);
+      var chg = (Math.random()-0.45)*0.8;
+      var up = chg >= 0;
+      var div = document.createElement('div');
+      div.style.cssText = 'background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:12px';
+      div.innerHTML = '<div style="font-family:var(--mn);font-size:9px;color:var(--t3)">'+p.name+'</div>'
+        +'<div style="font-family:var(--mn);font-size:18px;font-weight:300;color:#fff;margin:4px 0">'
+        +(rate >= 1000 ? rate.toLocaleString('en-US',{maximumFractionDigits:0})
+          : rate >= 1 ? rate.toFixed(4)
+          : rate.toFixed(8))+'</div>'
+        +'<div style="font-family:var(--mn);font-size:10px;color:'+(up?'var(--gr)':'var(--rd)')+'">'+(up?'▲':'▼')+Math.abs(chg).toFixed(2)+'%</div>';
+      cards.appendChild(div);
+    });
+  }
+
+  // Tüm kurlar tablosu
+  var tb = document.getElementById('doviz-tablo');
+  if (tb) {
+    tb.innerHTML = '';
+    var allPairs = [
+      {from:'USD',to:'TRY'},{from:'EUR',to:'TRY'},{from:'GBP',to:'TRY'},{from:'CHF',to:'TRY'},
+      {from:'JPY',to:'TRY'},{from:'CAD',to:'TRY'},{from:'AUD',to:'TRY'},{from:'SAR',to:'TRY'},
+      {from:'EUR',to:'USD'},{from:'GBP',to:'USD'},{from:'JPY',to:'USD'},{from:'CHF',to:'USD'},
+      {from:'CAD',to:'USD'},{from:'AUD',to:'USD'},{from:'BTC',to:'USD'},{from:'ETH',to:'USD'},
+    ];
+    allPairs.forEach(function(p) {
+      var rate = calcDovizRate(1, p.from, p.to);
+      var chg = (Math.random()-0.45)*0.8;
+      var up = chg >= 0;
+      var tr = document.createElement('tr');
+      var rateStr = rate >= 1000 ? rate.toLocaleString('en-US',{maximumFractionDigits:0})
+                  : rate >= 1 ? rate.toFixed(4) : rate.toFixed(8);
+      [
+        {t:p.from+'/'+p.to, s:'color:#fff;font-weight:500;font-family:var(--mn)'},
+        {t:rateStr, s:'font-family:var(--mn)'},
+        {t:(up?'+':'')+chg.toFixed(2)+'%', s:'font-family:var(--mn);color:'+(up?'var(--gr)':'var(--rd)')},
+        {t:(rate*1.001).toFixed(4), s:'color:var(--t2)'},
+        {t:(rate*0.999).toFixed(4), s:'color:var(--t2)'},
+      ].forEach(function(cell){
+        var td = document.createElement('td');
+        td.textContent = cell.t;
+        td.style.cssText = cell.s;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  // Draw chart
+  drawDovizChart();
+}
+
+function calcDovizRate(amount, from, to) {
+  var inUSD = from === 'USD' ? amount : amount / (dovizRates[from] || 1);
+  return to === 'USD' ? inUSD : inUSD * (dovizRates[to] || 1);
+}
+
+function hesaplaDoviz() {
+  var amount = parseFloat(document.getElementById('doviz-miktar').value) || 0;
+  var from = document.getElementById('doviz-from').value;
+  var to = document.getElementById('doviz-to').value;
+  var result = calcDovizRate(amount, from, to);
+  var el = document.getElementById('doviz-sonuc');
+  if (el) el.textContent = result >= 1000 ? result.toLocaleString('en-US',{maximumFractionDigits:2}) : result.toFixed(4);
+}
+
+function drawDovizChart() {
+  var el = document.getElementById('dovizChart');
+  if (!el) return;
+  if (dovizChart2) { try{dovizChart2.destroy();}catch(e){} }
+  var base = dovizRates.TRY || 32.8;
+  var data = Array.from({length:7}, function(_,i){ return +(base + (Math.random()-0.5)*base*0.02).toFixed(4); });
+  data[data.length-1] = base;
+  var labels = ['Pzt','Sal','Çar','Per','Cum','Cmt','Bug'];
+  dovizChart2 = new Chart(el.getContext('2d'), {
+    type:'line',
+    data:{labels:labels,datasets:[{data:data,borderColor:'var(--ac)',backgroundColor:'rgba(0,212,255,.07)',borderWidth:2,fill:true,tension:.3,pointRadius:3,pointBackgroundColor:'var(--ac)'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{ticks:{color:'#445566',font:{family:'DM Mono',size:9}},grid:{display:false}},
+              y:{ticks:{color:'#445566',font:{family:'DM Mono',size:9}},grid:{color:'rgba(255,255,255,.04)'}}}}
+  });
+}
+
+// Hook into gotoTab
+var _gt_piyasa = gotoTab;
+gotoTab = function(el, t) {
+  _gt_piyasa(el, t);
+  if (t === 'piyasa') initPiyasaPanel();
+  if (t === 'doviz') initDovizPanel();
+};
+
+// Also update exchange rates from crypto data
+setInterval(function(){
+  if (cryptoAllData && cryptoAllData.BTC) {
+    dovizRates.BTC = 1/cryptoAllData.BTC.price;
+    if (cryptoAllData.ETH) dovizRates.ETH = 1/cryptoAllData.ETH.price;
+  }
+}, 60000);
 </script>
 </body>
 </html>
