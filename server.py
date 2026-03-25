@@ -368,44 +368,56 @@ async def news_loop():
             await asyncio.sleep(120)  # re-fetch all feeds every 2 min
 
 # ── CRYPTO ─────────────────────────────────────────────
+# CoinGecko top 250 coins by market cap
+CG_PAGES = 3  # 3 pages x 100 = 300 coins
+
 async def crypto_loop():
-    """Fetch ALL coins from Binance — thousands of pairs, no key needed"""
-    BINANCE_TICKER = "https://api.binance.com/api/v3/ticker/24hr"
-    
+    """Fetch top 250 coins from CoinGecko — free, no key needed"""
     async with httpx.AsyncClient() as client:
         while True:
             try:
-                r = await client.get(BINANCE_TICKER, timeout=20)
-                if r.status_code == 200:
-                    tickers = r.json()
-                    updated = 0
-                    for t in tickers:
-                        sym = t.get("symbol","")
-                        # Only USDT pairs
-                        if not sym.endswith("USDT"):
-                            continue
-                        coin = sym[:-4]  # Remove USDT
-                        price = float(t.get("lastPrice", 0))
-                        if price <= 0:
-                            continue
-                        chg24 = float(t.get("priceChangePercent", 0))
-                        vol24 = float(t.get("quoteVolume", 0))  # in USDT
-                        crypto_data[coin] = {
-                            "price": price,
-                            "chg24": round(chg24, 2),
-                            "vol24": vol24,
-                            "mcap":  0,  # Binance doesn't provide mcap
-                            "ts":    int(time.time()),
-                        }
-                        updated += 1
-                    
-                    log.info(f"Binance: {updated} coins updated. BTC=${crypto_data.get('BTC',{}).get('price','?')}")
-                    await broadcast({"type": "crypto", "data": crypto_data})
-                else:
-                    log.warning(f"Binance error: {r.status_code}")
+                all_coins = []
+                for page in range(1, CG_PAGES + 1):
+                    r = await client.get(
+                        "https://api.coingecko.com/api/v3/coins/markets",
+                        params={
+                            "vs_currency": "usd",
+                            "order": "market_cap_desc",
+                            "per_page": 100,
+                            "page": page,
+                            "sparkline": False,
+                            "price_change_percentage": "24h"
+                        },
+                        timeout=15
+                    )
+                    if r.status_code == 200:
+                        all_coins.extend(r.json())
+                        await asyncio.sleep(2)
+                    else:
+                        log.warning(f"CoinGecko page {page}: {r.status_code}")
+                        break
+
+                for coin in all_coins:
+                    sym = coin.get("symbol","").upper()
+                    price = coin.get("current_price", 0) or 0
+                    if price <= 0:
+                        continue
+                    crypto_data[sym] = {
+                        "id":    coin.get("id",""),
+                        "name":  coin.get("name",""),
+                        "price": price,
+                        "chg24": round(coin.get("price_change_percentage_24h") or 0, 2),
+                        "vol24": coin.get("total_volume", 0) or 0,
+                        "mcap":  coin.get("market_cap", 0) or 0,
+                        "rank":  coin.get("market_cap_rank", 0) or 0,
+                        "ts":    int(time.time()),
+                    }
+
+                log.info(f"CoinGecko: {len(crypto_data)} coins. BTC=${crypto_data.get('BTC',{}).get('price','?')}")
+                await broadcast({"type": "crypto", "data": crypto_data})
             except Exception as e:
                 log.warning(f"Crypto error: {e}")
-            await asyncio.sleep(30)  # Binance allows frequent polling
+            await asyncio.sleep(120)  # CoinGecko free: update every 2 min
 
 
 # ── STARTUP ────────────────────────────────────────────
