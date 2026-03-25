@@ -619,21 +619,38 @@ tr:hover td{background:var(--bg2)}
   <!-- CRYPTO/FX PANEL -->
   <div class="panel" id="panel-crypto">
     <div class="pwrap">
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px" id="crypto-cards"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <!-- Filtre ve Arama -->
+      <div style="display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap">
+        <input id="crypto-search" placeholder="Coin ara... BTC, ETH, SOL" oninput="filterCryptoPanel(this.value)"
+          style="background:var(--bg2);border:1px solid var(--ln2);border-radius:3px;padding:4px 10px;font-family:var(--mn);font-size:10px;color:var(--t0);outline:none;width:180px">
+        <div style="display:flex;gap:4px">
+          <button onclick="sortCrypto('mcap')" id="sort-mcap" class="cbtn on" style="font-size:9px;padding:3px 8px">Market Cap</button>
+          <button onclick="sortCrypto('chg24')" id="sort-chg" class="cbtn" style="font-size:9px;padding:3px 8px">24s Değişim</button>
+          <button onclick="sortCrypto('price')" id="sort-price" class="cbtn" style="font-size:9px;padding:3px 8px">Fiyat</button>
+        </div>
+        <span id="crypto-count" style="font-family:var(--mn);font-size:10px;color:var(--t3);margin-left:auto"></span>
+      </div>
+      <!-- Coin Grid -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px" id="crypto-cards"></div>
+      <!-- Mini Charts -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
         <div>
           <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:8px">BTC/USD — CANLI</div>
-          <canvas id="btcChart" height="140"></canvas>
+          <canvas id="btcChart" height="120"></canvas>
         </div>
         <div>
           <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:8px">ETH/USD — CANLI</div>
-          <canvas id="ethChart" height="140"></canvas>
+          <canvas id="ethChart" height="120"></canvas>
         </div>
       </div>
-      <div style="margin-top:14px">
-        <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:8px">DÖVİZ KURLARİ</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px" id="fx-grid"></div>
-      </div>
+      <!-- Tam Liste Tablosu -->
+      <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:8px">TÜM KRİPTO LİSTESİ</div>
+      <table>
+        <thead><tr>
+          <th>#</th><th>COIN</th><th>FİYAT</th><th>24s %</th><th>HACİM</th><th>PİY.DEĞ.</th>
+        </tr></thead>
+        <tbody id="crypto-table"></tbody>
+      </table>
     </div>
   </div>
 
@@ -1068,6 +1085,11 @@ function pollBackend() {
         var ethE = TICKER_DATA.find(function(x){return x.l==='ETH/USD';});
         if (ethE && d.ETH) { ethE.p = d.ETH.price; ethE.c = d.ETH.chg24; }
         renderTicker();
+        // Update crypto panel if open
+        if (Object.keys(d).length > 4) {
+          cryptoAllData = d;
+          renderCryptoPanelFull();
+        }
       }
     })
     .catch(function(){});
@@ -4586,6 +4608,156 @@ window.addEventListener('load', function() {
   setTimeout(fetchRealNews, 3000);
   setInterval(fetchRealNews, 120000);
 });
+</script>
+
+<script>
+// ═══════════════════════════════════════════
+// KRIPTO PANELİ — 100+ Coin
+// ═══════════════════════════════════════════
+var cryptoSort = 'mcap';
+var cryptoFilter = '';
+var cryptoAllData = {};
+var btcChart2 = null, ethChart2 = null;
+var btcHist2 = [], ethHist2 = [];
+
+// Coin renk haritası
+var COIN_COLORS = {
+  BTC:'#f7931a',ETH:'#627eea',BNB:'#f3ba2f',SOL:'#9945ff',
+  XRP:'#346aa9',ADA:'#0033ad',DOGE:'#c2a633',AVAX:'#e84142',
+  DOT:'#e6007a',MATIC:'#8247e5',LINK:'#2a5ada',LTC:'#bfbbbb',
+  ATOM:'#2e3148',UNI:'#ff007a',NEAR:'#00c08b',ARB:'#28a0f0',
+  APT:'#00b4d8',AAVE:'#b6509e',MKR:'#1aab9b',LDO:'#77cfee',
+};
+
+function initCryptoPanelFull() {
+  // Backend'den kripto verisini al
+  fetch('https://nexus-terminal-production-6606.up.railway.app/crypto')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      cryptoAllData = d;
+      renderCryptoPanelFull();
+      // BTC/ETH mini charts
+      if (d.BTC) { btcHist2.push(d.BTC.price); updateMiniCryptoChart('btcChart', btcHist2, btcChart2, '#f7931a', function(ch){ btcChart2=ch; }); }
+      if (d.ETH) { ethHist2.push(d.ETH.price); updateMiniCryptoChart('ethChart', ethHist2, ethChart2, '#627eea', function(ch){ ethChart2=ch; }); }
+    })
+    .catch(function(){});
+  setInterval(function(){
+    fetch('https://nexus-terminal-production-6606.up.railway.app/crypto')
+      .then(function(r){ return r.json(); })
+      .then(function(d) {
+        cryptoAllData = d;
+        renderCryptoPanelFull();
+        if (d.BTC) { btcHist2.push(d.BTC.price); if(btcHist2.length>60)btcHist2.shift(); updateMiniCryptoChart('btcChart', btcHist2, btcChart2, '#f7931a', function(ch){ btcChart2=ch; }); }
+        if (d.ETH) { ethHist2.push(d.ETH.price); if(ethHist2.length>60)ethHist2.shift(); updateMiniCryptoChart('ethChart', ethHist2, ethChart2, '#627eea', function(ch){ ethChart2=ch; }); }
+      }).catch(function(){});
+  }, 30000);
+}
+
+function renderCryptoPanelFull() {
+  var coins = Object.keys(cryptoAllData).map(function(sym) {
+    var d = cryptoAllData[sym];
+    return {sym:sym, price:d.price||0, chg24:d.chg24||0, vol24:d.vol24||0, mcap:d.mcap||0};
+  }).filter(function(c){ return c.price > 0; });
+
+  // Filter
+  if (cryptoFilter) {
+    coins = coins.filter(function(c){ return c.sym.includes(cryptoFilter.toUpperCase()); });
+  }
+
+  // Sort
+  coins.sort(function(a,b){
+    if (cryptoSort === 'chg24') return Math.abs(b.chg24) - Math.abs(a.chg24);
+    if (cryptoSort === 'price') return b.price - a.price;
+    return (b.mcap||0) - (a.mcap||0);
+  });
+
+  var countEl = document.getElementById('crypto-count');
+  if (countEl) countEl.textContent = coins.length + ' coin';
+
+  // Top cards (first 10)
+  var cardsEl = document.getElementById('crypto-cards');
+  if (cardsEl) {
+    cardsEl.innerHTML = '';
+    coins.slice(0,10).forEach(function(c) {
+      var up = c.chg24 >= 0;
+      var col = COIN_COLORS[c.sym] || '#00d4ff';
+      var card = document.createElement('div');
+      card.style.cssText = 'background:var(--bg2);border:1px solid var(--ln);border-radius:5px;padding:10px;border-top:2px solid '+col+';cursor:pointer';
+      card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center">'
+        +'<span style="font-family:var(--mn);font-size:11px;color:#fff;font-weight:500">'+c.sym+'</span>'
+        +'<span style="font-family:var(--mn);font-size:9px;color:'+(up?'var(--gr)':'var(--rd)')+'">'+(up?'▲':'▼')+Math.abs(c.chg24).toFixed(2)+'%</span>'
+        +'</div>'
+        +'<div style="font-family:var(--mn);font-size:18px;font-weight:300;color:#fff;margin:4px 0">$'
+        +(c.price >= 1000 ? c.price.toLocaleString('en-US',{maximumFractionDigits:0})
+          : c.price >= 1 ? c.price.toFixed(2)
+          : c.price.toFixed(6))+'</div>'
+        +'<div style="font-family:var(--mn);font-size:9px;color:var(--t3)">MCap: '+(c.mcap>=1e12?(c.mcap/1e12).toFixed(2)+'T':c.mcap>=1e9?(c.mcap/1e9).toFixed(1)+'B':'—')+'</div>';
+      cardsEl.appendChild(card);
+    });
+  }
+
+  // Full table
+  var tb = document.getElementById('crypto-table');
+  if (tb) {
+    tb.innerHTML = '';
+    coins.forEach(function(c, i) {
+      var up = c.chg24 >= 0;
+      var tr = document.createElement('tr');
+      var pStr = c.price >= 1000 ? '$'+c.price.toLocaleString('en-US',{maximumFractionDigits:0})
+               : c.price >= 1 ? '$'+c.price.toFixed(2)
+               : '$'+c.price.toFixed(6);
+      var mcStr = c.mcap>=1e12?(c.mcap/1e12).toFixed(2)+'T':c.mcap>=1e9?(c.mcap/1e9).toFixed(1)+'B':'—';
+      var volStr = c.vol24>=1e9?(c.vol24/1e9).toFixed(1)+'B':c.vol24>=1e6?(c.vol24/1e6).toFixed(0)+'M':'—';
+      [
+        {t:(i+1).toString(), s:'color:var(--t3)'},
+        {t:c.sym, s:'color:#fff;font-weight:500;font-family:var(--mn)'},
+        {t:pStr, s:'font-family:var(--mn)'},
+        {t:(up?'+':'')+c.chg24.toFixed(2)+'%', s:'font-family:var(--mn);color:'+(up?'var(--gr)':'var(--rd)')},
+        {t:volStr, s:'color:var(--t2)'},
+        {t:mcStr, s:'color:var(--t2)'},
+      ].forEach(function(cell) {
+        var td = document.createElement('td');
+        td.textContent = cell.t;
+        td.style.cssText = cell.s;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+}
+
+function filterCryptoPanel(val) {
+  cryptoFilter = val;
+  renderCryptoPanelFull();
+}
+
+function sortCrypto(by) {
+  cryptoSort = by;
+  document.querySelectorAll('#sort-mcap,#sort-chg,#sort-price').forEach(function(b){ b.classList.remove('on'); });
+  var el = document.getElementById('sort-'+by); if(el) el.classList.add('on');
+  renderCryptoPanelFull();
+}
+
+function updateMiniCryptoChart(canvasId, data, existingChart, color, setChart) {
+  if (data.length < 2) return;
+  var el = document.getElementById(canvasId); if(!el) return;
+  if (existingChart) { try{existingChart.destroy();}catch(e){} }
+  var nc = new Chart(el.getContext('2d'), {
+    type:'line',
+    data:{labels:data.map(function(_,i){return i;}),datasets:[{data:data,borderColor:color,backgroundColor:color.replace('rgb','rgba').replace(')',',0.07)'),borderWidth:1.5,fill:true,tension:.3,pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:200},plugins:{legend:{display:false}},scales:{x:{display:false},y:{position:'right',grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#445566',font:{family:'DM Mono',size:9},callback:function(v){return v>=1000?'$'+(v/1000).toFixed(0)+'K':'$'+v.toFixed(0);}}}}}
+  });
+  setChart(nc);
+}
+
+// Hook into gotoTab for crypto panel
+var _origGT_crypto = gotoTab;
+gotoTab = function(el, t) {
+  _origGT_crypto(el, t);
+  if (t === 'kripto' || t === 'crypto') {
+    initCryptoPanelFull();
+  }
+};
 </script>
 </body>
 </html>
