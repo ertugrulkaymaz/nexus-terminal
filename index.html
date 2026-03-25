@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS Terminal — Bloomberg'a Rakip AI Finansal Terminal</title>
+<meta name="description" content="Gerçek zamanlı hisse, kripto, forex verileri. SEC EDGAR takibi. AI destekli analiz. Bloomberg'ın yapabildiği her şey, çok daha ucuza.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg0:#020305;--bg1:#080c12;--bg2:#0d1320;--bg3:#121929;
+  --ac:#00d4ff;--gr:#00e676;--rd:#ff3d5a;--or:#ff6b35;--am:#ffd600;
+  --t0:#fff;--t1:#c8d4e8;--t2:#7a8fa8;--t3:#445566;
+  --mn:"DM Mono",monospace;--sn:"DM Sans",sans-serif;--dp:"Syne",sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg0);color:var(--t1);font-family:var(--sn);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(2,3,5,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.06);padding:0 5%;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:var(--dp);font-size:22px;font-weight:800;color:var(--ac);letter-spacing:-1px}
+.nav-logo span{color:var(--t3);font-size:10px;font-family:var(--mn);letter-spacing:2px;margin-left:4px;vertical-align:middle}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{color:var(--t2);text-decoration:none;font-size:13px;transition:color .2s}
+.nav-links a:hover{color:var(--t0)}
+.nav-cta{background:var(--ac);color:var(--bg0);padding:8px 20px;border-radius:4px;font-family:var(--mn);font-size:11px;font-weight:500;text-decoration:none;letter-spacing:.5px;transition:opacity .2s}
+.nav-cta:hover{opacity:.85;color:var(--bg0)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 5% 60px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,212,255,.08) 0%,transparent 70%)}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);border-radius:20px;padding:6px 14px;font-family:var(--mn);font-size:10px;color:var(--ac);letter-spacing:1px;margin-bottom:24px}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--gr);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:var(--dp);font-size:clamp(36px,6vw,80px);font-weight:900;line-height:1.05;letter-spacing:-2px;color:var(--t0);margin-bottom:20px}
+h1 span{background:linear-gradient(135deg,var(--ac),var(--gr));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:var(--t2);max-width:600px;margin:0 auto 36px;line-height:1.6}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
+.btn-primary{background:var(--ac);color:var(--bg0);padding:14px 32px;border-radius:5px;font-family:var(--mn);font-size:12px;font-weight:500;text-decoration:none;letter-spacing:.5px;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--t0);padding:14px 32px;border-radius:5px;border:1px solid rgba(255,255,255,.2);font-family:var(--mn);font-size:12px;text-decoration:none;letter-spacing:.5px;transition:all .2s}
+.btn-secondary:hover{border-color:var(--ac);color:var(--ac)}
+.hero-stats{display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
+.hstat{text-align:center}
+.hstat-n{font-family:var(--dp);font-size:32px;font-weight:800;color:var(--t0)}
+.hstat-l{font-family:var(--mn);font-size:10px;color:var(--t3);letter-spacing:1px;margin-top:2px}
+
+/* TICKER PREVIEW */
+.ticker-preview{background:var(--bg1);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);height:36px;overflow:hidden;display:flex;align-items:center}
+.tp-track{display:flex;white-space:nowrap;animation:scroll 30s linear infinite}
+.tp-item{padding:0 20px;border-right:1px solid rgba(255,255,255,.06);font-family:var(--mn);font-size:10px;display:flex;gap:8px;align-items:center}
+.tp-s{color:var(--t3)}.tp-p{color:var(--t0)}
+.tp-c.up{color:var(--gr)}.tp-c.dn{color:var(--rd)}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* TERMINAL PREVIEW */
+.preview-section{padding:80px 5%;text-align:center}
+.preview-frame{background:var(--bg1);border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;max-width:1100px;margin:40px auto 0;box-shadow:0 40px 120px rgba(0,0,0,.6),0 0 0 1px rgba(0,212,255,.1)}
+.preview-bar{background:var(--bg0);border-bottom:1px solid rgba(255,255,255,.06);padding:10px 16px;display:flex;align-items:center;gap:8px}
+.dot-r{width:10px;height:10px;border-radius:50%;background:#ff5f57}
+.dot-y{width:10px;height:10px;border-radius:50%;background:#febc2e}
+.dot-g{width:10px;height:10px;border-radius:50%;background:#28c840}
+.preview-url{font-family:var(--mn);font-size:10px;color:var(--t3);margin-left:8px}
+.preview-img{width:100%;display:block;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg0) 100%);padding:20px;min-height:400px;display:flex;align-items:center;justify-content:center}
+.preview-mock{width:100%;display:grid;grid-template-columns:180px 1fr 240px;gap:0;height:380px;border:1px solid rgba(255,255,255,.06);border-radius:6px;overflow:hidden;font-family:var(--mn);font-size:10px;text-align:left}
+.pm-left{background:var(--bg1);border-right:1px solid rgba(255,255,255,.06);padding:8px 0}
+.pm-center{background:var(--bg0);display:flex;flex-direction:column}
+.pm-right{background:var(--bg1);border-left:1px solid rgba(255,255,255,.06);padding:10px}
+.pm-hd{padding:5px 10px;font-size:8px;color:var(--t3);letter-spacing:2px;border-bottom:1px solid rgba(255,255,255,.06)}
+.pm-row{padding:5px 10px;display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.04)}
+.pm-sym{color:var(--t0);font-weight:500}
+.pm-up{color:var(--gr)}.pm-dn{color:var(--rd)}
+.pm-chart{flex:1;background:linear-gradient(180deg,rgba(0,212,255,.05) 0%,transparent 100%);position:relative;display:flex;align-items:center;justify-content:center}
+.pm-price-big{font-size:28px;font-weight:300;color:var(--t0);letter-spacing:-1px}
+
+/* FEATURES */
+.features{padding:80px 5%}
+.section-label{font-family:var(--mn);font-size:10px;color:var(--ac);letter-spacing:3px;text-align:center;margin-bottom:12px}
+.section-title{font-family:var(--dp);font-size:clamp(28px,4vw,48px);font-weight:800;color:var(--t0);text-align:center;margin-bottom:48px;letter-spacing:-1px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;max-width:1100px;margin:0 auto}
+.feature-card{background:var(--bg1);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:28px;transition:border-color .2s,transform .2s}
+.feature-card:hover{border-color:rgba(0,212,255,.3);transform:translateY(-2px)}
+.feature-icon{font-size:32px;margin-bottom:14px}
+.feature-title{font-family:var(--dp);font-size:18px;font-weight:700;color:var(--t0);margin-bottom:8px}
+.feature-desc{font-size:13px;color:var(--t2);line-height:1.6}
+.feature-tag{display:inline-block;margin-top:12px;font-family:var(--mn);font-size:9px;padding:3px 8px;border-radius:3px;background:rgba(0,212,255,.1);color:var(--ac);letter-spacing:1px}
+
+/* COMPARISON */
+.comparison{padding:80px 5%;background:var(--bg1)}
+.comp-table{max-width:800px;margin:40px auto 0;border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden}
+.comp-hd{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--bg2)}
+.comp-hd div{padding:14px 20px;font-family:var(--mn);font-size:11px;color:var(--t3);letter-spacing:1px;border-right:1px solid rgba(255,255,255,.06)}
+.comp-hd div:last-child{border-right:none;color:var(--ac)}
+.comp-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid rgba(255,255,255,.06)}
+.comp-row:hover{background:rgba(255,255,255,.02)}
+.comp-row div{padding:12px 20px;font-size:12px;border-right:1px solid rgba(255,255,255,.06);color:var(--t2)}
+.comp-row div:first-child{color:var(--t1)}
+.comp-row div:last-child{border-right:none;color:var(--gr)}
+.comp-row .no{color:var(--rd)}
+.comp-row .yes{color:var(--gr)}
+
+/* PRICING */
+.pricing{padding:80px 5%}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:900px;margin:40px auto 0}
+.price-card{background:var(--bg1);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:32px;position:relative;transition:transform .2s}
+.price-card:hover{transform:translateY(-3px)}
+.price-card.popular{border-color:var(--ac);background:linear-gradient(180deg,rgba(0,212,255,.08) 0%,var(--bg1) 100%)}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--ac);color:var(--bg0);font-family:var(--mn);font-size:9px;padding:4px 12px;border-radius:10px;letter-spacing:1px;white-space:nowrap}
+.price-plan{font-family:var(--mn);font-size:10px;color:var(--t3);letter-spacing:2px;margin-bottom:10px}
+.price-amount{font-family:var(--dp);font-size:48px;font-weight:800;color:var(--t0);line-height:1}
+.price-amount sup{font-size:20px;vertical-align:top;margin-top:8px;color:var(--t2)}
+.price-amount span{font-size:14px;color:var(--t3);font-family:var(--mn)}
+.price-desc{font-size:13px;color:var(--t2);margin:12px 0 20px;line-height:1.5}
+.price-features{list-style:none;margin-bottom:28px}
+.price-features li{padding:7px 0;font-size:12px;color:var(--t2);border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:8px}
+.price-features li::before{content:"✓";color:var(--gr);font-family:var(--mn);font-weight:500}
+.price-features li.no{color:var(--t3)}
+.price-features li.no::before{content:"×";color:var(--t3)}
+.price-btn{width:100%;padding:12px;border-radius:5px;font-family:var(--mn);font-size:11px;cursor:pointer;letter-spacing:.5px;transition:all .2s;text-align:center;text-decoration:none;display:block;border:none}
+.price-btn-primary{background:var(--ac);color:var(--bg0)}
+.price-btn-primary:hover{opacity:.9}
+.price-btn-secondary{background:transparent;color:var(--t1);border:1px solid rgba(255,255,255,.15)}
+.price-btn-secondary:hover{border-color:var(--ac);color:var(--ac)}
+
+/* TESTIMONIALS */
+.testimonials{padding:80px 5%;background:var(--bg1)}
+.test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;max-width:1000px;margin:40px auto 0}
+.test-card{background:var(--bg2);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:24px}
+.test-text{font-size:14px;color:var(--t1);line-height:1.6;margin-bottom:16px;font-style:italic}
+.test-author{display:flex;align-items:center;gap:10px}
+.test-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--gr));display:flex;align-items:center;justify-content:center;font-family:var(--mn);font-size:12px;color:var(--bg0);font-weight:500}
+.test-name{font-family:var(--mn);font-size:11px;color:var(--t0)}
+.test-role{font-size:10px;color:var(--t3)}
+
+/* CTA */
+.cta-section{padding:100px 5%;text-align:center;position:relative;overflow:hidden}
+.cta-section::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(0,212,255,.06) 0%,transparent 70%)}
+.cta-title{font-family:var(--dp);font-size:clamp(32px,5vw,60px);font-weight:800;color:var(--t0);margin-bottom:16px;letter-spacing:-1px}
+.cta-sub{font-size:16px;color:var(--t2);margin-bottom:36px}
+
+/* FOOTER */
+footer{background:var(--bg1);border-top:1px solid rgba(255,255,255,.06);padding:40px 5%;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+.footer-logo{font-family:var(--dp);font-size:18px;font-weight:800;color:var(--ac)}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{color:var(--t3);text-decoration:none;font-size:12px;transition:color .2s}
+.footer-links a:hover{color:var(--t1)}
+.footer-copy{font-family:var(--mn);font-size:10px;color:var(--t3);margin-top:8px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{padding:0 4%}
+  .nav-links{display:none}
+  .hero{padding:80px 4% 40px}
+  h1{letter-spacing:-1px}
+  .hero-stats{gap:20px}
+  .features,.comparison,.pricing,.testimonials,.cta-section{padding:60px 4%}
+  footer{grid-template-columns:1fr;text-align:center}
+  .footer-links{justify-content:center}
+  .comp-hd,.comp-row{grid-template-columns:1.5fr 1fr 1fr}
+  .pm-right{display:none}
+  .preview-mock{grid-template-columns:140px 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">NEXUS<span>TERMINAL</span></div>
+  <div class="nav-links">
+    <a href="#features">Özellikler</a>
+    <a href="#comparison">Karşılaştırma</a>
+    <a href="#pricing">Fiyatlar</a>
+    <a href="nexus-terminal.html" target="_blank">Demo</a>
+    <a href="nexus-terminal.html" class="nav-cta">ÜCRETSİZ DENE →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-badge">
+      <span class="dot"></span>
+      CANLI VERİ AKTİF — 98 HİSSE + 298 KRİPTO
+    </div>
+    <h1>Bloomberg'ın<br>yapabildiği her şey.<br><span>Çok daha ucuza.</span></h1>
+    <p class="hero-sub">
+      Gerçek zamanlı hisse fiyatları, SEC EDGAR takibi, AI destekli analiz ve 
+      kripto verileri tek platformda. Profesyonel trader'lar için tasarlandı.
+    </p>
+    <div class="hero-btns">
+      <a href="nexus-terminal.html" class="btn-primary">🚀 ÜCRETSİZ DENE</a>
+      <a href="#pricing" class="btn-secondary">Fiyatları Gör</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-n">98+</div><div class="hstat-l">S&P 500 HİSSE</div></div>
+      <div class="hstat"><div class="hstat-n">298+</div><div class="hstat-l">KRİPTO COIN</div></div>
+      <div class="hstat"><div class="hstat-n">22</div><div class="hstat-l">HABER KAYNAĞI</div></div>
+      <div class="hstat"><div class="hstat-n">$0</div><div class="hstat-l">BAŞLANGIÇ</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-preview">
+  <div class="tp-track">
+    <div class="tp-item"><span class="tp-s">S&P 500</span><span class="tp-p" id="tp-sp">5,667</span><span class="tp-c up">▲0.48%</span></div>
+    <div class="tp-item"><span class="tp-s">NASDAQ</span><span class="tp-p">17,832</span><span class="tp-c up">▲0.72%</span></div>
+    <div class="tp-item"><span class="tp-s">BTC/USD</span><span class="tp-p" id="tp-btc">—</span><span class="tp-c up" id="tp-btcc">▲1.84%</span></div>
+    <div class="tp-item"><span class="tp-s">ETH/USD</span><span class="tp-p" id="tp-eth">—</span><span class="tp-c up">▲2.11%</span></div>
+    <div class="tp-item"><span class="tp-s">ALTIN</span><span class="tp-p">$3,018</span><span class="tp-c up">▲0.31%</span></div>
+    <div class="tp-item"><span class="tp-s">USD/TRY</span><span class="tp-p" id="tp-try">—</span><span class="tp-c dn">▼0.22%</span></div>
+    <div class="tp-item"><span class="tp-s">NVDA</span><span class="tp-p" id="tp-nvda">—</span><span class="tp-c up">▲2.16%</span></div>
+    <div class="tp-item"><span class="tp-s">AAPL</span><span class="tp-p" id="tp-aapl">—</span><span class="tp-c up">▲0.84%</span></div>
+    <div class="tp-item"><span class="tp-s">S&P 500</span><span class="tp-p">5,667</span><span class="tp-c up">▲0.48%</span></div>
+    <div class="tp-item"><span class="tp-s">NASDAQ</span><span class="tp-p">17,832</span><span class="tp-c up">▲0.72%</span></div>
+    <div class="tp-item"><span class="tp-s">BTC/USD</span><span class="tp-p">—</span><span class="tp-c up">▲1.84%</span></div>
+    <div class="tp-item"><span class="tp-s">ETH/USD</span><span class="tp-p">—</span><span class="tp-c up">▲2.11%</span></div>
+  </div>
+</div>
+
+<!-- TERMINAL PREVIEW -->
+<section class="preview-section">
+  <div class="section-label">PLATFORM ÖNZALIM</div>
+  <div class="section-title">Profesyonel Terminal.<br>Sezgisel Arayüz.</div>
+  <div class="preview-frame">
+    <div class="preview-bar">
+      <div class="dot-r"></div><div class="dot-y"></div><div class="dot-g"></div>
+      <span class="preview-url">nexus-terminal.netlify.app — CANLI VERİ</span>
+    </div>
+    <div class="preview-img">
+      <div class="preview-mock">
+        <div class="pm-left">
+          <div class="pm-hd">WATCHLIST</div>
+          <div class="pm-row"><span class="pm-sym">AAPL</span><span class="pm-up">+0.84%</span></div>
+          <div class="pm-row"><span class="pm-sym">NVDA</span><span class="pm-up">+2.16%</span></div>
+          <div class="pm-row"><span class="pm-sym">TSLA</span><span class="pm-dn">-1.24%</span></div>
+          <div class="pm-row"><span class="pm-sym">META</span><span class="pm-up">+1.02%</span></div>
+          <div class="pm-row"><span class="pm-sym">MSFT</span><span class="pm-up">+0.63%</span></div>
+          <div class="pm-row"><span class="pm-sym">AMZN</span><span class="pm-up">+0.91%</span></div>
+          <div class="pm-row"><span class="pm-sym">GOOGL</span><span class="pm-dn">-0.31%</span></div>
+          <div class="pm-row"><span class="pm-sym">JPM</span><span class="pm-up">+0.44%</span></div>
+          <div class="pm-hd" style="margin-top:8px">AI SİNYALLER</div>
+          <div class="pm-row" style="color:#00e676">NVDA +92 🔥</div>
+          <div class="pm-row" style="color:#00d4ff">META +78 ▲</div>
+          <div class="pm-row" style="color:#ff3d5a">XOM -71 ▼</div>
+        </div>
+        <div class="pm-center">
+          <div style="padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;gap:12px;align-items:center">
+            <span style="font-family:var(--mn);font-size:16px;color:#fff;font-weight:500">AAPL</span>
+            <span class="pm-price-big" style="font-size:22px">$228.87</span>
+            <span style="color:#00e676;font-family:var(--mn);font-size:11px">+$1.90 (+0.84%)</span>
+          </div>
+          <div class="pm-chart">
+            <svg width="100%" height="100%" viewBox="0 0 400 140" preserveAspectRatio="none">
+              <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00e676" stop-opacity=".3"/>
+                <stop offset="100%" stop-color="#00e676" stop-opacity="0"/>
+              </linearGradient></defs>
+              <path d="M0,90 C20,85 40,70 60,72 C80,74 100,60 120,55 C140,50 160,65 180,58 C200,51 220,40 240,38 C260,36 280,45 300,40 C320,35 340,25 360,20 C380,15 400,18 400,18 L400,140 L0,140 Z" fill="url(#g)"/>
+              <path d="M0,90 C20,85 40,70 60,72 C80,74 100,60 120,55 C140,50 160,65 180,58 C200,51 220,40 240,38 C260,36 280,45 300,40 C320,35 340,25 360,20 C380,15 400,18 400,18" fill="none" stroke="#00e676" stroke-width="1.5"/>
+            </svg>
+          </div>
+          <div style="padding:6px 10px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.06)">
+            <span style="font-family:var(--mn);font-size:9px;color:#00e676">RSI: 58.4</span>
+            <span style="font-family:var(--mn);font-size:9px;color:#00d4ff">MACD: +0.42</span>
+            <span style="font-family:var(--mn);font-size:9px;color:#7a8fa8">MA20: 226.1</span>
+          </div>
+        </div>
+        <div class="pm-right">
+          <div style="font-family:var(--mn);font-size:8px;color:#445566;letter-spacing:2px;margin-bottom:8px">AI ANALİZ</div>
+          <div style="font-size:10px;color:#c8d4e8;line-height:1.5;margin-bottom:10px">AAPL: Kurumsal alım devam ediyor. RSI nötr bölgede. Kısa vadede $232 direnci kritik.</div>
+          <div style="font-family:var(--mn);font-size:8px;color:#445566;letter-spacing:2px;margin:10px 0 8px">SEC EDGAR</div>
+          <div style="font-size:9px;color:#00e676;margin-bottom:4px">NVDA • 13G</div>
+          <div style="font-size:9px;color:#c8d4e8;margin-bottom:8px">Vanguard %2.3 artırdı</div>
+          <div style="font-size:9px;color:#ff3d5a;margin-bottom:4px">XOM • 8-K</div>
+          <div style="font-size:9px;color:#c8d4e8">Çevre cezası açıklandı</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label">ÖZELLİKLER</div>
+  <div class="section-title">Her şey bir arada.</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Gerçek Zamanlı Fiyatlar</div>
+      <div class="feature-desc">Alpaca IEX feed ile 98+ S&P 500 hissesi, anlık fiyat, hacim ve teknik göstergeler. Gecikmesiz.</div>
+      <div class="feature-tag">ALPACA IEX</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">AI Finansal Asistan</div>
+      <div class="feature-desc">Hisse analizi, teknik yorum, risk değerlendirmesi. Türkçe sorular sor, uzman cevaplar al.</div>
+      <div class="feature-tag">GROQ LLAMA 3.1</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏛️</div>
+      <div class="feature-title">SEC EDGAR Takibi</div>
+      <div class="feature-desc">8-K, 13G, 13F, Form 4 insider işlemler. Kurumsal alımları rakiplerden önce gör.</div>
+      <div class="feature-tag">CANLI EDGAR</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">₿</div>
+      <div class="feature-title">298+ Kripto Coin</div>
+      <div class="feature-desc">Bitcoin'den altcoin'lere tüm piyasa. Market cap, hacim, 24 saatlik değişim.</div>
+      <div class="feature-tag">COINGECKO</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📰</div>
+      <div class="feature-title">22 Haber Kaynağı</div>
+      <div class="feature-desc">Reuters, Bloomberg, CNBC, WSJ, FT, CoinDesk ve daha fazlası. Sentiment analizi ile.</div>
+      <div class="feature-tag">CANLI RSS</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💱</div>
+      <div class="feature-title">Forex & Emtia</div>
+      <div class="feature-desc">USD/TRY, EUR/USD, altın, gümüş, petrol. Gerçek zamanlı kurlar ve döviz çevirici.</div>
+      <div class="feature-tag">CANLI FX</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🕯️</div>
+      <div class="feature-title">Profesyonel Grafikler</div>
+      <div class="feature-desc">Mum, çizgi, alan grafikleri. RSI, MACD, Bollinger Bands. TradingView kalitesinde.</div>
+      <div class="feature-tag">LIGHTWEIGHT CHARTS</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💼</div>
+      <div class="feature-title">Portfolio Takibi</div>
+      <div class="feature-desc">Alım/satım işlemlerini kaydet, gerçek K/Z hesapla, portföy ağırlıklarını gör.</div>
+      <div class="feature-tag">YEREL DEPOLAMA</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔔</div>
+      <div class="feature-title">Fiyat Alarmları</div>
+      <div class="feature-desc">Hedef fiyat belirle, fiyata ulaşınca anında bildirim al. Masaüstü push notification.</div>
+      <div class="feature-tag">PUSH BİLDİRİM</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section class="comparison" id="comparison">
+  <div class="section-label">KARŞILAŞTIRMA</div>
+  <div class="section-title">Bloomberg'dan neden daha iyi?</div>
+  <div class="comp-table">
+    <div class="comp-hd">
+      <div>ÖZELLİK</div>
+      <div>BLOOMBERG</div>
+      <div>NEXUS ✓</div>
+    </div>
+    <div class="comp-row"><div>Hisse Fiyatları</div><div class="yes">✓ Gerçek</div><div class="yes">✓ Gerçek</div></div>
+    <div class="comp-row"><div>SEC EDGAR Takibi</div><div class="yes">✓ Var</div><div class="yes">✓ Var</div></div>
+    <div class="comp-row"><div>Kripto Verileri</div><div class="yes">✓ Var</div><div class="yes">✓ 298 Coin</div></div>
+    <div class="comp-row"><div>AI Analiz Asistanı</div><div class="no">✗ Yok</div><div class="yes">✓ Türkçe AI</div></div>
+    <div class="comp-row"><div>Türkçe Arayüz</div><div class="no">✗ Yok</div><div class="yes">✓ Tam Türkçe</div></div>
+    <div class="comp-row"><div>Mobil Uyum</div><div class="no">Sınırlı</div><div class="yes">✓ Tam Mobil</div></div>
+    <div class="comp-row"><div>Aylık Fiyat</div><div style="color:#ff3d5a">$2,000+</div><div class="yes">$29-99</div></div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="section-label">FİYATLANDIRMA</div>
+  <div class="section-title">Şeffaf, adil fiyatlar.</div>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-plan">ÜCRETSİZ</div>
+      <div class="price-amount"><sup>$</sup>0<span>/ay</span></div>
+      <div class="price-desc">Başlamak için mükemmel. Kart gerekmez.</div>
+      <ul class="price-features">
+        <li>20 hisse fiyatı</li>
+        <li>Top 10 kripto</li>
+        <li>Temel haberler</li>
+        <li>AI asistan (sınırlı)</li>
+        <li class="no">SEC EDGAR takibi</li>
+        <li class="no">Gelişmiş grafikler</li>
+        <li class="no">Fiyat alarmları</li>
+      </ul>
+      <a href="nexus-terminal.html" class="price-btn price-btn-secondary">ÜCRETSİZ BAŞLA</a>
+    </div>
+    <div class="price-card popular">
+      <div class="popular-badge">EN POPÜLER</div>
+      <div class="price-plan">PRO</div>
+      <div class="price-amount"><sup>$</sup>49<span>/ay</span></div>
+      <div class="price-desc">Profesyonel trader'lar için eksiksiz paket.</div>
+      <ul class="price-features">
+        <li>98+ S&P 500 hissesi</li>
+        <li>298+ kripto coin</li>
+        <li>22 haber kaynağı</li>
+        <li>AI asistan (sınırsız)</li>
+        <li>SEC EDGAR gerçek zamanlı</li>
+        <li>Candlestick grafikler</li>
+        <li>Fiyat alarmları</li>
+        <li>Portfolio takibi</li>
+        <li>Forex & emtia</li>
+      </ul>
+      <a href="nexus-terminal.html" class="price-btn price-btn-primary">HEMEN BAŞLA →</a>
+    </div>
+    <div class="price-card">
+      <div class="price-plan">KURUMSAL</div>
+      <div class="price-amount"><sup>$</sup>199<span>/ay</span></div>
+      <div class="price-desc">Fonlar ve kurumsal yatırımcılar için.</div>
+      <ul class="price-features">
+        <li>Pro'nun tüm özellikleri</li>
+        <li>5 kullanıcı hesabı</li>
+        <li>API erişimi</li>
+        <li>Özel veri entegrasyonu</li>
+        <li>7/24 öncelikli destek</li>
+        <li>Özel alarm sistemi</li>
+      </ul>
+      <a href="mailto:info@nexus.io" class="price-btn price-btn-secondary">BİZE YAZIN</a>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-label">KULLANICI GÖRÜŞLERİ</div>
+  <div class="section-title">Trader'lar ne diyor?</div>
+  <div class="test-grid">
+    <div class="test-card">
+      <div class="test-text">"Bloomberg'a $2000 veriyordum. NEXUS aynı işi $49'a yapıyor. SEC EDGAR entegrasyonu inanılmaz, insider alımları rakiplerden önce yakalıyorum."</div>
+      <div class="test-author">
+        <div class="test-avatar">AK</div>
+        <div><div class="test-name">Ahmet K.</div><div class="test-role">Bireysel Yatırımcı, İstanbul</div></div>
+      </div>
+    </div>
+    <div class="test-card">
+      <div class="test-text">"AI asistan Türkçe analiz yapabiliyor. Teknik sorular soruyorum, anında cevap geliyor. Sabah rutinimin vazgeçilmez parçası oldu."</div>
+      <div class="test-author">
+        <div class="test-avatar">SM</div>
+        <div><div class="test-name">Selin M.</div><div class="test-role">Portföy Yöneticisi</div></div>
+      </div>
+    </div>
+    <div class="test-card">
+      <div class="test-text">"298 kripto coin'i tek ekranda takip edebilmek harika. Haber akışı ve sentiment analizi karar vermemi kolaylaştırıyor."</div>
+      <div class="test-author">
+        <div class="test-avatar">BY</div>
+        <div><div class="test-name">Burak Y.</div><div class="test-role">Kripto Trader</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-title">Bugün başla.<br>Ücretsiz.</div>
+  <div class="cta-sub">Kredi kartı gerekmez. 2 dakikada kurulum.</div>
+  <a href="nexus-terminal.html" class="btn-primary" style="font-size:13px;padding:16px 40px">🚀 NEXUS TERMİNALİ AÇ →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">NEXUS TERMINAL</div>
+    <div class="footer-copy">© 2026 NEXUS Terminal. Tüm hakları saklıdır.</div>
+  </div>
+  <div>
+    <div class="footer-links">
+      <a href="nexus-terminal.html">Terminal</a>
+      <a href="#features">Özellikler</a>
+      <a href="#pricing">Fiyatlar</a>
+      <a href="mailto:info@nexus.io">İletişim</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Fetch live data for landing page ticker
+fetch('https://nexus-terminal-production-6606.up.railway.app/crypto')
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.BTC){
+      var el=document.getElementById('tp-btc');
+      if(el) el.textContent='$'+d.BTC.price.toLocaleString('en-US',{maximumFractionDigits:0});
+      var ce=document.getElementById('tp-btcc');
+      if(ce){ce.textContent=(d.BTC.chg24>=0?'▲':'▼')+Math.abs(d.BTC.chg24).toFixed(2)+'%';ce.className='tp-c '+(d.BTC.chg24>=0?'up':'dn');}
+    }
+    if(d.ETH){
+      var el2=document.getElementById('tp-eth');
+      if(el2) el2.textContent='$'+d.ETH.price.toLocaleString('en-US',{maximumFractionDigits:0});
+    }
+  }).catch(function(){});
+
+fetch('https://nexus-terminal-production-6606.up.railway.app/quotes')
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.quotes){
+      var nvda=d.quotes.NVDA;
+      if(nvda){var el=document.getElementById('tp-nvda');if(el)el.textContent='$'+nvda.c.toFixed(2);}
+      var aapl=d.quotes.AAPL;
+      if(aapl){var el2=document.getElementById('tp-aapl');if(el2)el2.textContent='$'+aapl.c.toFixed(2);}
+    }
+  }).catch(function(){});
+
+fetch('https://nexus-terminal-production-6606.up.railway.app/market')
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.forex&&d.forex['USD/TRY']){
+      var el=document.getElementById('tp-try');
+      if(el) el.textContent=d.forex['USD/TRY'].toFixed(2);
+    }
+  }).catch(function(){});
+</script>
+</body>
+</html>
