@@ -6,7 +6,7 @@
 <title>NEXUS Terminal — Live</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -5555,7 +5555,11 @@ function loadChartData(sym, type) {
         borderUpColor: '#00e676', borderDownColor: '#ff3d5a',
         wickUpColor: '#00e676', wickDownColor: '#ff3d5a',
       };
-      lwSeries = (lwChart.addCandlestickSeries || lwChart.addBarSeries).call(lwChart, seriesOpts);
+      if (lwChart.addCandlestickSeries) {
+        lwSeries = lwChart.addCandlestickSeries(seriesOpts);
+      } else {
+        lwSeries = lwChart.addBarSeries(seriesOpts);
+      }
     } else if (type === 'area') {
       lwSeries = lwChart.addAreaSeries({
         lineColor: '#00d4ff', topColor: 'rgba(0,212,255,.3)',
@@ -5693,6 +5697,20 @@ function setChartType(type, btn) {
     lwChart = null; lwSeries = null;
   }
   initLWChart();
+}
+
+function initChartJS() {
+  var el = document.getElementById('mainChart');
+  if (!el) return;
+  var data = hist[selSym] || [200];
+  var up = data.length>1 && data[data.length-1]>=data[0];
+  var col = up ? '0,230,118' : '255,61,90';
+  if (window._chartJSInstance) { try{window._chartJSInstance.destroy();}catch(e){} }
+  window._chartJSInstance = new Chart(el.getContext('2d'), {
+    type:'line',
+    data:{labels:data.map(function(_,i){return i;}),datasets:[{data:data,borderColor:'rgb('+col+')',backgroundColor:'rgba('+col+',.07)',borderWidth:1.5,fill:true,tension:.3,pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:200},plugins:{legend:{display:false}},scales:{x:{display:false},y:{position:'right',grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'#445566',font:{size:10}}}}}
+  });
 }
 
 // Override old initChart to use LightweightCharts
@@ -6849,17 +6867,30 @@ function loadDetailSym(sym) {
   var dnEl = document.getElementById('detail-news');
   if (dnEl) {
     if (relatedNews.length) {
-      dnEl.innerHTML = relatedNews.map(function(n) {
+      dnEl.innerHTML = '';
+      relatedNews.forEach(function(n) {
         var col = n.sent==='pos'?'var(--gr)':n.sent==='neg'?'var(--rd)':'var(--t3)';
-        return '<div style="padding:8px 0;border-bottom:1px solid var(--ln);cursor:pointer" onclick="window.open(''+n.link+'','_blank')">'
-          + '<div style="display:flex;justify-content:space-between;margin-bottom:3px">'
-          + '<span style="font-family:var(--mn);font-size:9px;color:var(--ac)">' + (n.src||'NEWS') + '</span>'
-          + '<span style="font-family:var(--mn);font-size:9px;color:'+col+'">' + (n.sent==='pos'?'▲POZ':n.sent==='neg'?'▼NEG':'■NÖT') + '</span>'
-          + '</div>'
-          + '<div style="font-size:11px;color:var(--t1);line-height:1.4">' + n.title + '</div>'
-          + '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:3px">' + (n.time||'') + ' önce</div>'
-          + '</div>';
-      }).join('');
+        var div = document.createElement('div');
+        div.style.cssText = 'padding:8px 0;border-bottom:1px solid var(--ln);cursor:pointer';
+        if (n.link) div.onclick = function(){ window.open(n.link,'_blank'); };
+        var hd = document.createElement('div');
+        hd.style.cssText = 'display:flex;justify-content:space-between;margin-bottom:3px';
+        var src = document.createElement('span');
+        src.style.cssText = 'font-family:var(--mn);font-size:9px;color:var(--ac)';
+        src.textContent = (n.src||'NEWS');
+        var st = document.createElement('span');
+        st.style.cssText = 'font-family:var(--mn);font-size:9px;color:'+col;
+        st.textContent = n.sent==='pos'?'▲POZ':n.sent==='neg'?'▼NEG':'■NÖT';
+        hd.appendChild(src); hd.appendChild(st);
+        var tit = document.createElement('div');
+        tit.style.cssText = 'font-size:11px;color:var(--t1);line-height:1.4';
+        tit.textContent = n.title;
+        var tm = document.createElement('div');
+        tm.style.cssText = 'font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:3px';
+        tm.textContent = (n.time||'') + ' once';
+        div.appendChild(hd); div.appendChild(tit); div.appendChild(tm);
+        dnEl.appendChild(div);
+      });
     } else {
       dnEl.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:8px 0">' + sym + ' ile ilgili haber bulunamadı</div>';
     }
