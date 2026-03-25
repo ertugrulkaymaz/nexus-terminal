@@ -172,7 +172,7 @@ footer{background:var(--bg1);border-top:1px solid rgba(255,255,255,.06);padding:
     <a href="#features">Özellikler</a>
     <a href="#comparison">Karşılaştırma</a>
     <a href="#pricing">Fiyatlar</a>
-    <a href="nexus-terminal.html" target="_blank">Demo</a>
+    <a href="nexus-terminal.html">Demo</a>
     <a href="nexus-terminal.html" class="nav-cta">ÜCRETSİZ DENE →</a>
   </div>
 </nav>
@@ -414,7 +414,7 @@ footer{background:var(--bg1);border-top:1px solid rgba(255,255,255,.06);padding:
         <li>7/24 öncelikli destek</li>
         <li>Özel alarm sistemi</li>
       </ul>
-      <a href="mailto:info@nexus.io" class="price-btn price-btn-secondary">BİZE YAZIN</a>
+      <a href="/cdn-cgi/l/email-protection#9ef7f0f8f1def0fbe6ebedb0f7f1" class="price-btn price-btn-secondary">BİZE YAZIN</a>
     </div>
   </div>
 </section>
@@ -452,7 +452,7 @@ footer{background:var(--bg1);border-top:1px solid rgba(255,255,255,.06);padding:
 <section class="cta-section">
   <div class="cta-title">Bugün başla.<br>Ücretsiz.</div>
   <div class="cta-sub">Kredi kartı gerekmez. 2 dakikada kurulum.</div>
-  <a href="nexus-terminal.html" class="btn-primary" style="font-size:13px;padding:16px 40px">🚀 NEXUS TERMİNALİ AÇ →</a>
+  <a href="nexus-terminal.html" class="btn-primary" style="font-size:13px;padding:16px 40px" onclick="launchTerminal(event)">🚀 NEXUS TERMİNALİ AÇ →</a>
 </section>
 
 <!-- FOOTER -->
@@ -466,12 +466,12 @@ footer{background:var(--bg1);border-top:1px solid rgba(255,255,255,.06);padding:
       <a href="nexus-terminal.html">Terminal</a>
       <a href="#features">Özellikler</a>
       <a href="#pricing">Fiyatlar</a>
-      <a href="mailto:info@nexus.io">İletişim</a>
+      <a href="/cdn-cgi/l/email-protection#3950575f5679575c414c4a175056">İletişim</a>
     </div>
   </div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // Fetch live data for landing page ticker
 fetch('https://nexus-terminal-production-6606.up.railway.app/crypto')
   .then(function(r){return r.json();})
@@ -502,11 +502,4 @@ fetch('https://nexus-terminal-production-6606.up.railway.app/quotes')
 fetch('https://nexus-terminal-production-6606.up.railway.app/market')
   .then(function(r){return r.json();})
   .then(function(d){
-    if(d.forex&&d.forex['USD/TRY']){
-      var el=document.getElementById('tp-try');
-      if(el) el.textContent=d.forex['USD/TRY'].toFixed(2);
-    }
-  }).catch(function(){});
-</script>
-</body>
-</html>
+    if(d.forex&&d.for
