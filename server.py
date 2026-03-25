@@ -368,77 +368,45 @@ async def news_loop():
             await asyncio.sleep(120)  # re-fetch all feeds every 2 min
 
 # ── CRYPTO ─────────────────────────────────────────────
-# Top 100 crypto IDs
-CRYPTO_IDS = [
-    "bitcoin","ethereum","tether","binancecoin","solana","ripple","usd-coin","cardano",
-    "avalanche-2","dogecoin","polkadot","chainlink","tron","polygon","shiba-inu",
-    "litecoin","dai","bitcoin-cash","stellar","monero","ethereum-classic","okb",
-    "cosmos","uniswap","hedera-hashgraph","filecoin","internet-computer","cronos",
-    "lido-dao","near","vechain","algorand","quant-network","aptos","arbitrum",
-    "the-graph","fantom","theta-token","aave","elrond-erd-2","flow","tezos",
-    "axie-infinity","decentraland","eos","bitcoin-sv","kucoin-shares","maker",
-    "neo","waves","iota","dash","zcash","compound-governance-token","yearn-finance",
-    "sushi","pancakeswap-token","1inch","loopring","curve-dao-token","balancer",
-    "synthetix-network-token","uma","band-protocol","ren","kyber-network-crystal",
-    "ocean-protocol","basic-attention-token","augur","district0x","status",
-    "storj","golem","civic","power-ledger","numeraire","wrapped-bitcoin",
-    "huobi-token","gate","crypto-com-chain","ftx-token","leo-token","oec-token",
-    "thor","harmony","celo","ontology","icon","zilliqa","qtum","nano",
-    "digibyte","horizen","ravencoin","siacoin","verge","decred","stratis",
-    "wax","hive","steem","ark","pivx",
-]
-
 async def crypto_loop():
+    """Fetch ALL coins from Binance — thousands of pairs, no key needed"""
+    BINANCE_TICKER = "https://api.binance.com/api/v3/ticker/24hr"
+    
     async with httpx.AsyncClient() as client:
         while True:
             try:
-                # Fetch top 100 in batches of 50 (CoinGecko limit)
-                all_data = {}
-                for i in range(0, len(CRYPTO_IDS), 50):
-                    batch = CRYPTO_IDS[i:i+50]
-                    ids_str = ",".join(batch)
-                    r = await client.get(
-                        f"https://api.coingecko.com/api/v3/simple/price?ids={ids_str}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true",
-                        timeout=15
-                    )
-                    if r.status_code == 200:
-                        all_data.update(r.json())
-                    await asyncio.sleep(2)
-
-                for cid in CRYPTO_IDS:
-                    if cid not in all_data:
-                        continue
-                    d = all_data[cid]
-                    # Use uppercase symbol as key
-                    sym = cid.upper()[:8]
-                    # Map common ones to proper symbols
-                    sym_map = {
-                        "BITCOIN":"BTC","ETHEREUM":"ETH","BINANCECOI":"BNB","SOLANA":"SOL",
-                        "RIPPLE":"XRP","USD-COIN":"USDC","CARDANO":"ADA","DOGECOIN":"DOGE",
-                        "AVALANCHE":"AVAX","POLKADOT":"DOT","CHAINLINK":"LINK","TRON":"TRX",
-                        "POLYGON":"MATIC","SHIBA-INU":"SHIB","LITECOIN":"LTC","STELLAR":"XLM",
-                        "MONERO":"XMR","COSMOS":"ATOM","UNISWAP":"UNI","NEAR":"NEAR",
-                        "APTOS":"APT","ARBITRUM":"ARB","AAVE":"AAVE","MAKER":"MKR",
-                        "WRAPPED-BI":"WBTC","TETHER":"USDT","DAI":"DAI","HEDERA-HAS":"HBAR",
-                        "FILECOIN":"FIL","INTERNET-C":"ICP","VECHAIN":"VET","ALGORAND":"ALGO",
-                        "FANTOM":"FTM","TEZOS":"XTZ","EOS":"EOS","DASH":"DASH","ZCASH":"ZEC",
-                        "LIDO-DAO":"LDO","THE-GRAPH":"GRT","FLOW":"FLOW","ELROND-ERD":"EGLD",
-                    }
-                    symbol = sym_map.get(sym, sym)
-                    crypto_data[symbol] = {
-                        "id":    cid,
-                        "price": d.get("usd", 0),
-                        "chg24": round(d.get("usd_24h_change", 0), 2),
-                        "vol24": d.get("usd_24h_vol", 0),
-                        "mcap":  d.get("usd_market_cap", 0),
-                        "ts":    int(time.time()),
-                    }
-
-                log.info(f"Crypto: {len(crypto_data)} coins updated. BTC=${crypto_data.get('BTC',{}).get('price','?')}")
-                await broadcast({"type": "crypto", "data": crypto_data})
+                r = await client.get(BINANCE_TICKER, timeout=20)
+                if r.status_code == 200:
+                    tickers = r.json()
+                    updated = 0
+                    for t in tickers:
+                        sym = t.get("symbol","")
+                        # Only USDT pairs
+                        if not sym.endswith("USDT"):
+                            continue
+                        coin = sym[:-4]  # Remove USDT
+                        price = float(t.get("lastPrice", 0))
+                        if price <= 0:
+                            continue
+                        chg24 = float(t.get("priceChangePercent", 0))
+                        vol24 = float(t.get("quoteVolume", 0))  # in USDT
+                        crypto_data[coin] = {
+                            "price": price,
+                            "chg24": round(chg24, 2),
+                            "vol24": vol24,
+                            "mcap":  0,  # Binance doesn't provide mcap
+                            "ts":    int(time.time()),
+                        }
+                        updated += 1
+                    
+                    log.info(f"Binance: {updated} coins updated. BTC=${crypto_data.get('BTC',{}).get('price','?')}")
+                    await broadcast({"type": "crypto", "data": crypto_data})
+                else:
+                    log.warning(f"Binance error: {r.status_code}")
             except Exception as e:
                 log.warning(f"Crypto error: {e}")
-            await asyncio.sleep(120)  # CoinGecko free tier: update every 2 min
+            await asyncio.sleep(30)  # Binance allows frequent polling
+
 
 # ── STARTUP ────────────────────────────────────────────
 @app.on_event("startup")
