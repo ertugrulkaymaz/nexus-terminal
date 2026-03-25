@@ -2105,9 +2105,9 @@ function runNLP() {
 
   // Gemini 1.5 Flash — ucretsiz, key gerekmez (demo mode)
   // Gercek kullanim icin: aistudio.google.com'dan ucretsiz key al
-  var GEMINI_KEY = window.GEMINI_API_KEY || 'AIzaSyCpSBb5p-r9_mwHabVGw7Ju7wqOvK1Ta1w';
+
   
-  if (!GEMINI_KEY) {
+  if (false) {
     // Gemini key yoksa akilli offline analiz yap
     setTimeout(function() {
       var p = liveP[sym] || (quotes[sym] && quotes[sym].c) || 0;
@@ -2144,23 +2144,30 @@ function runNLP() {
     return;
   }
 
-  // Gemini API call
-  var geminiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_KEY;
-  fetch(geminiUrl, {
+  // Groq API — ucretsiz, hizli
+  fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer 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'
+    },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: context + '\n\nKullanıcı sorusu: ' + q }] }],
-      generationConfig: { maxOutputTokens: 400, temperature: 0.3 }
+      model: 'llama-3.1-8b-instant',
+      messages: [
+        { role: 'system', content: context },
+        { role: 'user', content: q }
+      ],
+      max_tokens: 400,
+      temperature: 0.3
     })
   })
   .then(function(r){ return r.json(); })
   .then(function(d) {
-    var text = d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts[0].text;
+    var text = d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content;
     out.innerHTML = (text||'Yanıt alınamadı.').replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>');
   })
   .catch(function(e) {
-    out.innerHTML = '<span style="color:var(--rd)">Gemini bağlantı hatası.</span>';
+    out.innerHTML = '<span style="color:var(--rd)">AI bağlantı hatası.</span>';
   });
 }
 document.addEventListener('DOMContentLoaded',function(){
