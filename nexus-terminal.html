@@ -5489,7 +5489,15 @@ var candleData = {};  // OHLCV data per symbol
 
 function initLWChart() {
   var container = document.getElementById('lwChart');
-  if (!container || !window.LightweightCharts) return;
+  if (!container) return;
+  if (!window.LightweightCharts) {
+    // Fallback to Chart.js
+    container.style.display = 'none';
+    var canvas = document.getElementById('mainChart');
+    if (canvas) canvas.style.display = 'block';
+    initChartJS();
+    return;
+  }
 
   // Destroy existing
   if (lwChart) { try { lwChart.remove(); } catch(e) {} lwChart = null; lwSeries = null; }
@@ -5539,12 +5547,15 @@ function loadChartData(sym, type) {
 
   // Create series based on type
   try {
+    // LW Charts v3/v4 compatible
+    var seriesOpts = {};
     if (type === 'candle') {
-      lwSeries = lwChart.addCandlestickSeries({
+      seriesOpts = {
         upColor: '#00e676', downColor: '#ff3d5a',
         borderUpColor: '#00e676', borderDownColor: '#ff3d5a',
         wickUpColor: '#00e676', wickDownColor: '#ff3d5a',
-      });
+      };
+      lwSeries = (lwChart.addCandlestickSeries || lwChart.addBarSeries).call(lwChart, seriesOpts);
     } else if (type === 'area') {
       lwSeries = lwChart.addAreaSeries({
         lineColor: '#00d4ff', topColor: 'rgba(0,212,255,.3)',
@@ -5553,16 +5564,20 @@ function loadChartData(sym, type) {
     } else if (type === 'bar') {
       lwSeries = lwChart.addBarSeries({ upColor: '#00e676', downColor: '#ff3d5a' });
     } else {
-      var up = q && q.pc ? price >= q.pc : true;
+      var up2 = q && q.pc ? price >= q.pc : true;
       lwSeries = lwChart.addLineSeries({
-        color: up ? '#00e676' : '#ff3d5a', lineWidth: 2,
+        color: up2 ? '#00e676' : '#ff3d5a', lineWidth: 2,
       });
     }
   } catch(e) {
-    // Fallback to line series if candle not supported
-    try {
-      lwSeries = lwChart.addLineSeries({ color: '#00d4ff', lineWidth: 2 });
-    } catch(e2) { console.warn('Chart series error:', e2); return; }
+    console.warn('Chart series error:', e);
+    // Use Chart.js fallback
+    try { lwChart.remove(); } catch(e2){}
+    lwChart = null;
+    var canvas2 = document.getElementById('mainChart');
+    if (canvas2) { canvas2.style.display='block'; document.getElementById('lwChart').style.display='none'; }
+    initChartJS();
+    return;
   }
 
   // Show loading indicator
@@ -6708,10 +6723,15 @@ function loadDetailSym(sym) {
     + '</div>'
     + '</div>'
     + '<div style="text-align:right">'
-    + '<button onclick="addPriceAlarm(''+sym+'')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);border-radius:4px;color:var(--ac);font-family:var(--mn);font-size:10px;padding:6px 12px;cursor:pointer;margin-bottom:6px;display:block;width:100%">🔔 ALARM EKLE</button>'
-    + '<button onclick="pickSym(''+sym+'');gotoTab(null,'terminal')" style="background:var(--ac);border:none;border-radius:4px;color:var(--bg0);font-family:var(--mn);font-size:10px;padding:6px 12px;cursor:pointer;display:block;width:100%">📊 TERMİNALDE AÇ</button>'
+    + '<button data-alarm="'+sym+'" class="detail-alarm-btn" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);border-radius:4px;color:var(--ac);font-family:var(--mn);font-size:10px;padding:6px 12px;cursor:pointer;margin-bottom:6px;display:block;width:100%">🔔 ALARM EKLE</button>'
+    + '<button data-goto="'+sym+'" class="detail-goto-btn" style="background:var(--ac);border:none;border-radius:4px;color:var(--bg0);font-family:var(--mn);font-size:10px;padding:6px 12px;cursor:pointer;display:block;width:100%">📊 TERMİNALDE AÇ</button>'
     + '</div>';
   el.appendChild(header);
+  // Add click handlers via event delegation
+  var alarmBtn = el.querySelector('[data-alarm]');
+  if (alarmBtn) alarmBtn.onclick = function(){ addPriceAlarm(this.dataset.alarm); };
+  var gotoBtn = el.querySelector('[data-goto]');
+  if (gotoBtn) gotoBtn.onclick = function(){ pickSym(this.dataset.goto); gotoTab(null,'terminal'); };
 
   // ── KEY STATS ───────────────────────────
   var stats = document.createElement('div');
@@ -6912,7 +6932,7 @@ var FORUM_POSTS = [
    content:'Powellin açıklamalarına göre 2025te 2 indirim bekleniyor. Bu senaryoda tech hisseleri ne yapar? Büyüme hisseleri için iyimserim.',
    likes:18, replies:22, views:198, tags:['fed','faiz','makro']},
   {id:4, user:'value_investor', avatar:'VI', time:'2sa', cat:'Temel Analiz', sym:'AAPL',
-   title:'Apple'ın AI stratejisi ve uzun vadeli değerleme',
+   title:'Applein AI stratejisi ve uzun vadeli degerme',
    content:'AAPL 28 F/K ile tarihsel ortalamasında işlem görüyor. AI entegrasyonu ile premium artabilir. iPhone 16 satışları beklentilerin üzerinde.',
    likes:33, replies:11, views:220, tags:['aapl','değerleme','ai']},
   {id:5, user:'risk_manager', avatar:'RM', time:'3sa', cat:'Risk', sym:'TSLA',
