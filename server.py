@@ -108,7 +108,7 @@ async def root():
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "quotes": len(quotes), "sec": len(sec_filings), "news": len(news_items), "crypto": len(crypto_data)  # number of coins, "clients": len(clients), "ts": int(time.time())}
+    return {"status": "ok", "quotes": len(quotes), "sec": len(sec_filings), "news": len(news_items), "crypto": len(crypto_data), "clients": len(clients), "ts": int(time.time())}
 
 @app.get("/quotes")
 async def get_quotes():
