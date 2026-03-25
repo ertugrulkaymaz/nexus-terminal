@@ -5538,25 +5538,31 @@ function loadChartData(sym, type) {
   var price = liveP[sym] || (q && q.c) || 200;
 
   // Create series based on type
-  if (type === 'candle') {
-    lwSeries = lwChart.addCandlestickSeries({
-      upColor: '#00e676', downColor: '#ff3d5a',
-      borderUpColor: '#00e676', borderDownColor: '#ff3d5a',
-      wickUpColor: '#00e676', wickDownColor: '#ff3d5a',
-    });
-  } else if (type === 'area') {
-    lwSeries = lwChart.addAreaSeries({
-      lineColor: '#00d4ff', topColor: 'rgba(0,212,255,.3)',
-      bottomColor: 'rgba(0,212,255,.02)', lineWidth: 2,
-    });
-  } else if (type === 'bar') {
-    lwSeries = lwChart.addBarSeries({ upColor: '#00e676', downColor: '#ff3d5a' });
-  } else {
-    var up = q && q.pc ? price >= q.pc : true;
-    lwSeries = lwChart.addLineSeries({
-      color: up ? '#00e676' : '#ff3d5a', lineWidth: 2,
-      crosshairMarkerVisible: true, crosshairMarkerRadius: 4,
-    });
+  try {
+    if (type === 'candle') {
+      lwSeries = lwChart.addCandlestickSeries({
+        upColor: '#00e676', downColor: '#ff3d5a',
+        borderUpColor: '#00e676', borderDownColor: '#ff3d5a',
+        wickUpColor: '#00e676', wickDownColor: '#ff3d5a',
+      });
+    } else if (type === 'area') {
+      lwSeries = lwChart.addAreaSeries({
+        lineColor: '#00d4ff', topColor: 'rgba(0,212,255,.3)',
+        bottomColor: 'rgba(0,212,255,.02)', lineWidth: 2,
+      });
+    } else if (type === 'bar') {
+      lwSeries = lwChart.addBarSeries({ upColor: '#00e676', downColor: '#ff3d5a' });
+    } else {
+      var up = q && q.pc ? price >= q.pc : true;
+      lwSeries = lwChart.addLineSeries({
+        color: up ? '#00e676' : '#ff3d5a', lineWidth: 2,
+      });
+    }
+  } catch(e) {
+    // Fallback to line series if candle not supported
+    try {
+      lwSeries = lwChart.addLineSeries({ color: '#00d4ff', lineWidth: 2 });
+    } catch(e2) { console.warn('Chart series error:', e2); return; }
   }
 
   // Show loading indicator
@@ -5686,22 +5692,19 @@ function initChart() {
   }
 }
 
-// Override updateChart
-var _oldUpdateChart = typeof updateChart === 'function' ? updateChart : function(){};
+// Override updateChart — NO recursion
 function updateChart() {
-  if (lwSeries && liveP[selSym] > 0) {
-    var price = liveP[selSym];
-    var now = Math.floor(Date.now() / 1000);
-    try {
-      if (chartType === 'candle' || chartType === 'bar') {
-        lwSeries.update({ time: now, open: price*0.9995, high: price*1.001, low: price*0.999, close: price });
-      } else {
-        lwSeries.update({ time: now, value: price });
-      }
-    } catch(e) {}
-  } else {
-    _oldUpdateChart();
-  }
+  if (!lwSeries) return;
+  var price = liveP[selSym] || 0;
+  if (price <= 0) return;
+  var now = Math.floor(Date.now() / 1000);
+  try {
+    if (chartType === 'candle' || chartType === 'bar') {
+      lwSeries.update({ time: now, open: price*0.9995, high: price*1.001, low: price*0.999, close: price });
+    } else {
+      lwSeries.update({ time: now, value: price });
+    }
+  } catch(e) {}
 }
 
 // Re-init chart when symbol changes
@@ -5864,8 +5867,8 @@ function exportPortfolio() {
     var pl = (cur - pos.cost) * pos.shares;
     rows.push([k, pos.shares, pos.cost.toFixed(2), cur.toFixed(2), pl.toFixed(2)]);
   });
-  var csv = rows.map(function(r){ return r.join(','); }).join('
-');
+  var csv = rows.map(function(r){ return r.join(','); }).join('\n');
+  var blob = new Blob([csv], {type:'text/csv'});
   var blob = new Blob([csv], {type:'text/csv'});
   var url = URL.createObjectURL(blob);
   var a = document.createElement('a');
@@ -6898,15 +6901,15 @@ gotoTab = function(el, t) {
 var FORUM_POSTS = [
   {id:1, user:'trader_ahmet', avatar:'TA', time:'12dk', cat:'Teknik Analiz', sym:'NVDA',
    title:'NVDA 900 direncini kırabilir mi? RSI aşırı alımda',
-   content:'NVDA bugün güçlü açıldı ama RSI 74'te. MA20 üzerinde seyrediyor. Kısa vadede 880 desteği kritik. Sizce bu seviyeden alım yapar mısınız?',
+   content:'NVDA bugün güçlü açıldı ama RSI 74te. MA20 üzerinde seyrediyor. Kısa vadede 880 desteği kritik. Sizce bu seviyeden alım yapar mısınız?',
    likes:24, replies:8, views:142, tags:['teknik','gpu','ai']},
   {id:2, user:'crypto_wolf', avatar:'CW', time:'34dk', cat:'Kripto', sym:'BTC',
    title:'Bitcoin 70K sonrası konsolidasyon — uzun vadeli görüş',
-   content:'BTC halving sonrası tarihsel pattern'e bakarsak 6-12 ay içinde yeni ATH bekliyorum. Ama önce 60K testi olabilir. Portföyünüzde BTC ağırlığı nedir?',
+   content:'BTC halving sonrası tarihsel patterne bakarsak 6-12 ay içinde yeni ATH bekliyorum. Ama önce 60K testi olabilir. Portföyünüzde BTC ağırlığı nedir?',
    likes:41, replies:15, views:287, tags:['bitcoin','halving','uzun-vade']},
   {id:3, user:'macro_analyst', avatar:'MA', time:'1sa', cat:'Makro', sym:'',
    title:'Fed faiz kararı sonrası piyasalar nereye gider?',
-   content:'Powell'ın açıklamalarına göre 2025'te 2 indirim bekleniyor. Bu senaryoda tech hisseleri ne yapar? Büyüme hisseleri için iyimserim.',
+   content:'Powellin açıklamalarına göre 2025te 2 indirim bekleniyor. Bu senaryoda tech hisseleri ne yapar? Büyüme hisseleri için iyimserim.',
    likes:18, replies:22, views:198, tags:['fed','faiz','makro']},
   {id:4, user:'value_investor', avatar:'VI', time:'2sa', cat:'Temel Analiz', sym:'AAPL',
    title:'Apple'ın AI stratejisi ve uzun vadeli değerleme',
@@ -6914,7 +6917,7 @@ var FORUM_POSTS = [
    likes:33, replies:11, views:220, tags:['aapl','değerleme','ai']},
   {id:5, user:'risk_manager', avatar:'RM', time:'3sa', cat:'Risk', sym:'TSLA',
    title:'TSLA 2025 riskleri — tarafsız analiz',
-   content:'EV pazarında rekabet artıyor. Marj baskısı devam ediyor. Musk'ın diğer girişimleri dikkat dağıtıyor. Ama FSD geliri oyun değiştirici olabilir.',
+   content:'EV pazarında rekabet artıyor. Marj baskısı devam ediyor. Muskin diğer girişimleri dikkat dağıtıyor. Ama FSD geliri oyun değiştirici olabilir.',
    likes:15, replies:19, views:165, tags:['tsla','risk','ev']},
 ];
 
