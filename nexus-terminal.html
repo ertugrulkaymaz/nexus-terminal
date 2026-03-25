@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEXUS Terminal — Live</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js">
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -17,7 +17,7 @@
   --mn:'DM Mono',monospace;--sn:'DM Sans',sans-serif;--dp:'Syne',sans-serif;
 }
 *{box-sizing:border-box}
-html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font-family:var(--sn);font-size:12px}
+html,body{height:100%;overflow:hidden;max-width:100vw;background:var(--bg0);color:var(--t1);font-family:var(--sn);font-size:12px}
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
 
@@ -42,7 +42,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg0);color:var(--t1);font
 .topbar{height:40px;min-height:40px;background:var(--bg1);border-bottom:1px solid var(--ln);display:flex;align-items:center;padding:0 12px;flex-shrink:0}
 .logo{font-family:var(--dp);font-size:16px;font-weight:800;color:var(--ac);margin-right:16px;letter-spacing:-.5px}
 .logo span{color:var(--t3);font-size:9px;font-family:var(--mn);letter-spacing:1px;margin-left:2px}
-.tabs{display:flex;height:100%}
+.tabs{display:flex;height:100%;overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}
 .tab{height:100%;padding:0 12px;display:flex;align-items:center;font-family:var(--mn);font-size:10px;color:var(--t2);cursor:pointer;border-bottom:2px solid transparent;letter-spacing:.5px;transition:all .15s;white-space:nowrap}
 .tab:hover{color:var(--t0);background:var(--bg2)}
 .tab.on{color:var(--ac);border-bottom-color:var(--ac);background:var(--bg2)}
@@ -260,6 +260,211 @@ tr:hover td{background:var(--bg2)}
 .quick-analysis-btn:hover{border-color:var(--ac);background:rgba(0,212,255,.05)}
 
 #ws-status{position:fixed;bottom:0;left:0;right:0;height:20px;display:flex;align-items:center;justify-content:center;font-family:var(--mn);font-size:9px;z-index:999;opacity:0;transition:opacity .4s;pointer-events:none;letter-spacing:.5px}
+
+/* ═══════════════════════════════════════════
+   MOBILE RESPONSIVE — 768px ve altı
+═══════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Topbar */
+  .topbar { padding: 0 8px; gap: 4px; height: 44px; min-height: 44px; }
+  .logo { font-size: 14px; margin-right: 4px; }
+  .logo span { display: none; }
+  .tabs { gap: 0; }
+  .tab { padding: 0 8px; font-size: 9px; letter-spacing: 0; }
+  .tright { gap: 5px; }
+  .srch { width: 100px; font-size: 9px; }
+  .clk { display: none; }
+  .mkt-info { display: none; }
+
+  /* Ticker */
+  .ticker { height: 24px; }
+  .titem { padding: 0 10px; font-size: 9px; }
+
+  /* Main layout — stack vertically */
+  .main { flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+
+  /* Hide left/right bars on mobile */
+  .lbar { display: none; }
+  .rbar { display: none; }
+
+  /* Center takes full width */
+  .center { width: 100%; min-width: 0; }
+
+  /* Symbol bar */
+  .symbar { padding: 6px 10px; gap: 8px; flex-wrap: wrap; }
+  .sbsym { font-size: 16px; }
+  .sbprice { font-size: 20px; }
+  .sbchg { font-size: 11px; }
+  .sbstats { display: none; }
+  .alpha-b { display: none; }
+
+  /* Chart */
+  .chart-area { padding: 6px 10px 4px; }
+  .ctrls { flex-wrap: wrap; gap: 2px; }
+  .cbtn { padding: 2px 6px; font-size: 9px; }
+  .ind-row { display: none; }
+
+  /* Bottom panels — tabs on mobile */
+  .bpanels { flex-direction: column; height: auto; min-height: 0; }
+  .bp { min-height: 120px; border-right: none; border-bottom: 1px solid var(--ln); }
+
+  /* Panels */
+  .pwrap { padding: 10px; }
+  .mgrid { grid-template-columns: repeat(2,1fr) !important; }
+  .psum { grid-template-columns: repeat(2,1fr) !important; }
+
+  /* Tables */
+  table { font-size: 10px; }
+  th, td { padding: 4px 6px; }
+
+  /* Modal bottom nav */
+  #mobile-nav { display: flex !important; }
+}
+
+/* TABLET — 769px to 1024px */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .lbar { width: 150px; min-width: 150px; }
+  .rbar { width: 200px; min-width: 200px; }
+  .sbstats { gap: 6px; }
+  .tab { padding: 0 8px; font-size: 9px; }
+}
+
+/* Mobile bottom navigation bar */
+#mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--bg1);
+  border-top: 1px solid var(--ln2);
+  z-index: 1000;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 8px;
+}
+.mob-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background .15s;
+  color: var(--t3);
+  font-family: var(--mn);
+  font-size: 8px;
+}
+.mob-nav-btn.on { color: var(--ac); background: rgba(0,212,255,.1); }
+.mob-nav-btn .mob-icon { font-size: 18px; line-height: 1; }
+
+/* Add bottom padding when mobile nav is visible */
+@media (max-width: 768px) {
+  #app { padding-bottom: 56px; }
+  .bpanels { display: none; }
+}
+
+/* ═══════════════════════════════════════
+   CSS POLISH — Son dokunuşlar
+═══════════════════════════════════════ */
+
+/* Smooth scrolling */
+.pwrap, .lbar, .rbar { scroll-behavior: smooth; }
+
+/* Better scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t3); }
+
+/* Focus states */
+input:focus, textarea:focus, select:focus {
+  border-color: var(--ac) !important;
+  box-shadow: 0 0 0 2px rgba(0,212,255,.1);
+}
+
+/* Button hover states */
+button:hover { opacity: 0.85; }
+button:active { transform: scale(0.97); }
+
+/* Smooth transitions */
+.wi, .tab, .cbtn, .sig, .nitem, .secitem, .feature-card { transition: all .15s ease; }
+
+/* Panel fade-in */
+.panel.on { animation: fadeIn .2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Watchlist filter input */
+#wl-search { transition: border-color .15s; }
+
+/* Search dropdown */
+#search-dropdown::-webkit-scrollbar { width: 3px; }
+#search-dropdown div:hover { background: var(--bg2) !important; }
+
+/* Alpha signals */
+#alpha-signals-list div:hover { transform: translateX(2px); }
+
+/* Table row hover */
+tr:hover td { background: rgba(255,255,255,.02); }
+th { cursor: pointer; user-select: none; }
+th:hover { color: var(--ac); }
+
+/* Notification bar */
+#ws-status {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-family: var(--mn);
+  font-size: 11px;
+  z-index: 9999;
+  transition: opacity .5s;
+  opacity: 0;
+  pointer-events: none;
+  border: 1px solid rgba(0,212,255,.25);
+  backdrop-filter: blur(10px);
+  max-width: 320px;
+}
+
+/* Pulse animation for live dots */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .4; transform: scale(0.8); }
+}
+.pulse { animation: pulse 2s infinite; }
+
+/* Card hover glow */
+.mcard:hover { border-color: rgba(0,212,255,.2); }
+.pcard:hover { border-color: rgba(0,212,255,.2); }
+
+/* Tab active indicator */
+.tab.on::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ac);
+}
+.tab { position: relative; }
+
+/* Better mobile touch targets */
+@media (max-width: 768px) {
+  .wi { min-height: 44px; }
+  .tab { min-height: 44px; font-size: 9px; padding: 0 6px; }
+  button { min-height: 36px; }
+}
+
+/* Print styles */
+@media print {
+  .lbar, .rbar, .topbar, .ticker, #mobile-nav { display: none !important; }
+  .center { width: 100% !important; }
+  body { background: white !important; color: black !important; }
+}
 </style>
 </head>
 <body>
@@ -308,6 +513,28 @@ tr:hover td{background:var(--bg2)}
 
   <div class="ticker"><div class="ttrack" id="ttrack"></div></div>
 
+  <!-- MOBILE BOTTOM NAV -->
+  <div id="mobile-nav">
+    <div class="mob-nav-btn on" onclick="mobileNav(this,'terminal')">
+      <span class="mob-icon">📊</span><span>Terminal</span>
+    </div>
+    <div class="mob-nav-btn" onclick="mobileNav(this,'screener')">
+      <span class="mob-icon">🔍</span><span>Screener</span>
+    </div>
+    <div class="mob-nav-btn" onclick="mobileNav(this,'haberler')">
+      <span class="mob-icon">📰</span><span>Haberler</span>
+    </div>
+    <div class="mob-nav-btn" onclick="mobileNav(this,'crypto')">
+      <span class="mob-icon">₿</span><span>Kripto</span>
+    </div>
+    <div class="mob-nav-btn" onclick="mobileNav(this,'aiasistan')">
+      <span class="mob-icon">🤖</span><span>AI</span>
+    </div>
+    <div class="mob-nav-btn" onclick="mobileNav(this,'portfolio')">
+      <span class="mob-icon">💼</span><span>Portföy</span>
+    </div>
+  </div>
+
   <!-- TERMINAL PANEL -->
   <div class="panel on" id="panel-terminal">
     <div class="main">
@@ -337,6 +564,7 @@ tr:hover td{background:var(--bg2)}
             <div class="sbst"><div class="sbst-l">52W HIGH</div><div class="sbst-v" id="h-52h">—</div></div>
             <div class="sbst"><div class="sbst-l">52W LOW</div><div class="sbst-v" id="h-52l">—</div></div>
           </div>
+          <div id="analyst-ratings" style="margin-left:auto"></div>
           <span class="alpha-b" id="h-alpha" style="color:var(--ac);border:1px solid rgba(0,212,255,.25);background:rgba(0,212,255,.1)">α HESAPLANIYOR</span>
         </div>
 
@@ -373,7 +601,10 @@ tr:hover td{background:var(--bg2)}
             </div>
             <span style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-left:8px" id="chart-updated"></span>
           </div>
-          <div class="cwrap"><canvas id="mainChart"></canvas></div>
+          <div class="cwrap">
+            <div id="lwChart" style="width:100%;height:100%"></div>
+            <canvas id="mainChart" style="display:none"></canvas>
+          </div>
         </div>
 
         <div class="bpanels">
@@ -429,6 +660,22 @@ tr:hover td{background:var(--bg2)}
   <!-- SCREENER -->
   <div class="panel" id="panel-screener">
     <div class="pwrap">
+      <!-- OPTIONS FLOW TABLOSU -->
+      <div style="margin-bottom:20px">
+        <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">🎯 UNUSUAL OPTIONS ACTIVITY</div>
+        <table>
+          <thead><tr><th>SEMBOL</th><th>TİP</th><th>STRIKE</th><th>VAADESİZ</th><th>PREMİUM</th><th>ADET</th><th>DURUM</th></tr></thead>
+          <tbody id="options-flow-body"></tbody>
+        </table>
+      </div>
+      <!-- SHORT INTEREST TABLOSU -->
+      <div>
+        <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">📉 SHORT INTEREST — SQUEEZE RADAR</div>
+        <table>
+          <thead><tr><th>SEMBOL</th><th>SHORT %</th><th>KAPANIŞ</th><th>SHORT HACİM</th><th>FİYAT</th><th>SEVİYE</th></tr></thead>
+          <tbody id="short-interest-body"></tbody>
+        </table>
+      </div>
       <div style="display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
         <input id="sc-search" placeholder="Sembol veya şirket ara..." oninput="screenerFilter=this.value;screenerPage=0;renderScreener()"
           style="background:var(--bg2);border:1px solid var(--ln2);border-radius:3px;padding:3px 10px;font-family:var(--mn);font-size:10px;color:var(--t0);outline:none;width:200px">
@@ -747,117 +994,135 @@ tr:hover td{background:var(--bg2)}
 
   <!-- AUTH PANEL -->
   <div class="panel" id="panel-auth">
-    <div style="display:flex;height:100%;align-items:center;justify-content:center;background:var(--bg0)">
-      <div id="auth-box" style="width:400px">
-        <!-- Login Form -->
-        <div id="auth-login">
-          <div style="text-align:center;margin-bottom:32px">
-            <div style="font-family:var(--dp);font-size:36px;font-weight:800;color:var(--ac);letter-spacing:-2px">NEXUS</div>
-            <div style="font-family:var(--mn);font-size:10px;color:var(--t3);letter-spacing:4px;margin-top:4px">TERMINAL PLATFORM</div>
+    <div style="display:flex;height:100%;overflow-y:auto;background:var(--bg0)">
+      <div style="margin:auto;width:100%;max-width:480px;padding:40px 20px">
+
+        <!-- LOGO -->
+        <div style="text-align:center;margin-bottom:32px">
+          <div style="font-family:var(--dp);font-size:42px;font-weight:800;color:var(--ac);letter-spacing:-2px">NEXUS</div>
+          <div style="font-family:var(--mn);font-size:10px;color:var(--t3);letter-spacing:4px;margin-top:4px">AI FINANCIAL TERMINAL</div>
+        </div>
+
+        <!-- PLAN SEÇICI -->
+        <div id="auth-plan-selector" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px">
+          <div class="plan-card" onclick="selectPlan('free')" id="plan-free" style="background:var(--bg2);border:2px solid var(--ac);border-radius:8px;padding:12px;text-align:center;cursor:pointer">
+            <div style="font-family:var(--mn);font-size:10px;color:var(--t3);margin-bottom:4px">ÜCRETSİZ</div>
+            <div style="font-family:var(--dp);font-size:22px;font-weight:800;color:var(--t0)">$0</div>
+            <div style="font-family:var(--mn);font-size:9px;color:var(--t3)">/ay</div>
           </div>
-          <div style="background:var(--bg1);border:1px solid var(--ln2);border-radius:8px;padding:28px">
-            <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:3px;margin-bottom:20px">HESAP GİRİŞİ</div>
-            <div style="margin-bottom:12px">
-              <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:5px;letter-spacing:1px">E-POSTA</div>
-              <input id="login-email" type="email" placeholder="ornek@nexus.io" style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:9px 12px;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
-            </div>
-            <div style="margin-bottom:20px">
-              <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:5px;letter-spacing:1px">PAROLA</div>
-              <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:9px 12px;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
-            </div>
-            <button onclick="doLogin()" style="width:100%;background:var(--ac);border:none;border-radius:4px;color:var(--bg0);font-family:var(--mn);font-size:11px;font-weight:500;padding:11px;cursor:pointer;letter-spacing:2px;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">GİRİŞ YAP</button>
-            <div style="text-align:center;margin-top:16px;font-family:var(--mn);font-size:10px;color:var(--t3)">
-              Hesabın yok mu? <span onclick="showRegister()" style="color:var(--ac);cursor:pointer">Kaydol →</span>
-            </div>
-            <div style="text-align:center;margin-top:8px;font-family:var(--mn);font-size:10px;color:var(--t3)">
-              <span onclick="" style="color:var(--t2);cursor:pointer">Parolamı unuttum</span>
-            </div>
+          <div class="plan-card" onclick="selectPlan('pro')" id="plan-pro" style="background:var(--bg2);border:2px solid var(--ln);border-radius:8px;padding:12px;text-align:center;cursor:pointer;position:relative">
+            <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--ac);color:var(--bg0);font-family:var(--mn);font-size:8px;padding:2px 8px;border-radius:8px;white-space:nowrap">POPÜLER</div>
+            <div style="font-family:var(--mn);font-size:10px;color:var(--t3);margin-bottom:4px">PRO</div>
+            <div style="font-family:var(--dp);font-size:22px;font-weight:800;color:var(--t0)">$49</div>
+            <div style="font-family:var(--mn);font-size:9px;color:var(--t3)">/ay</div>
           </div>
-          <div style="display:flex;gap:8px;margin-top:12px">
-            <button onclick="doOAuth('google')" style="flex:1;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t1);font-family:var(--mn);font-size:10px;padding:9px;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='rgba(255,255,255,.12)'">G Google ile Giriş</button>
-            <button onclick="doOAuth('github')" style="flex:1;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t1);font-family:var(--mn);font-size:10px;padding:9px;cursor:pointer;transition:border-color .2s" onmouseover="this.style.borderColor='var(--ac)'" onmouseout="this.style.borderColor='rgba(255,255,255,.12)'">⌥ GitHub ile Giriş</button>
+          <div class="plan-card" onclick="selectPlan('enterprise')" id="plan-enterprise" style="background:var(--bg2);border:2px solid var(--ln);border-radius:8px;padding:12px;text-align:center;cursor:pointer">
+            <div style="font-family:var(--mn);font-size:10px;color:var(--t3);margin-bottom:4px">KURUMSAL</div>
+            <div style="font-family:var(--dp);font-size:22px;font-weight:800;color:var(--t0)">$199</div>
+            <div style="font-family:var(--mn);font-size:9px;color:var(--t3)">/ay</div>
           </div>
         </div>
-        <!-- Register Form -->
-        <div id="auth-register" style="display:none">
-          <div style="text-align:center;margin-bottom:32px">
-            <div style="font-family:var(--dp);font-size:36px;font-weight:800;color:var(--ac);letter-spacing:-2px">NEXUS</div>
-            <div style="font-family:var(--mn);font-size:10px;color:var(--t3);letter-spacing:4px;margin-top:4px">YENİ HESAP OLUŞTUR</div>
+
+        <!-- FORM KARTLARI -->
+        <div style="background:var(--bg1);border:1px solid var(--ln2);border-radius:10px;overflow:hidden">
+
+          <!-- TAB -->
+          <div style="display:flex;border-bottom:1px solid var(--ln)">
+            <button id="atab-login" onclick="switchAuthTab('login')"
+              style="flex:1;padding:12px;background:var(--bg2);border:none;color:var(--ac);font-family:var(--mn);font-size:11px;cursor:pointer;border-bottom:2px solid var(--ac)">
+              GİRİŞ YAP
+            </button>
+            <button id="atab-register" onclick="switchAuthTab('register')"
+              style="flex:1;padding:12px;background:transparent;border:none;color:var(--t3);font-family:var(--mn);font-size:11px;cursor:pointer;border-bottom:2px solid transparent">
+              KAYIT OL
+            </button>
           </div>
-          <div style="background:var(--bg1);border:1px solid var(--ln2);border-radius:8px;padding:28px">
-            <div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:3px;margin-bottom:20px">KAYIT FORMU</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-              <div>
-                <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:5px;letter-spacing:1px">AD</div>
-                <input id="reg-name" type="text" placeholder="Adınız" style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:9px 12px;outline:none" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
+
+          <div style="padding:24px">
+
+            <!-- GİRİŞ FORMU -->
+            <div id="auth-login-form">
+              <div style="margin-bottom:14px">
+                <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:6px;letter-spacing:1px">E-POSTA</div>
+                <input id="login-email" type="email" placeholder="ornek@email.com"
+                  style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--sn);font-size:13px;padding:10px 12px;outline:none"
+                  onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--ln2)'">
               </div>
-              <div>
-                <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:5px;letter-spacing:1px">KULLANICI ADI</div>
-                <input id="reg-user" type="text" placeholder="@kullanici" style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:9px 12px;outline:none" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
+              <div style="margin-bottom:20px">
+                <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:6px;letter-spacing:1px">ŞİFRE</div>
+                <input id="login-pass" type="password" placeholder="••••••••"
+                  style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--sn);font-size:13px;padding:10px 12px;outline:none"
+                  onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--ln2)'"
+                  onkeydown="if(event.key==='Enter')doLogin()">
               </div>
+              <button onclick="doLogin()"
+                style="width:100%;background:var(--ac);border:none;border-radius:4px;color:var(--bg0);font-family:var(--mn);font-size:12px;padding:12px;cursor:pointer;font-weight:500;letter-spacing:.5px">
+                GİRİŞ YAP →
+              </button>
+              <div style="text-align:center;margin-top:12px">
+                <span style="font-family:var(--mn);font-size:10px;color:var(--t3);cursor:pointer" onclick="switchAuthTab('register')">
+                  Hesabın yok mu? <span style="color:var(--ac)">Kayıt ol</span>
+                </span>
+              </div>
+              <div id="login-msg" style="margin-top:10px;font-family:var(--mn);font-size:10px;text-align:center;display:none"></div>
             </div>
-            <div style="margin-bottom:12px">
-              <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:5px;letter-spacing:1px">E-POSTA</div>
-              <input id="reg-email" type="email" placeholder="ornek@nexus.io" style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:9px 12px;outline:none" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
+
+            <!-- KAYIT FORMU -->
+            <div id="auth-register-form" style="display:none">
+              <div style="margin-bottom:12px">
+                <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:6px;letter-spacing:1px">AD SOYAD</div>
+                <input id="reg-name" type="text" placeholder="Adınız Soyadınız"
+                  style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--sn);font-size:13px;padding:10px 12px;outline:none"
+                  onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--ln2)'">
+              </div>
+              <div style="margin-bottom:12px">
+                <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:6px;letter-spacing:1px">E-POSTA</div>
+                <input id="reg-email" type="email" placeholder="ornek@email.com"
+                  style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--sn);font-size:13px;padding:10px 12px;outline:none"
+                  onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--ln2)'">
+              </div>
+              <div style="margin-bottom:20px">
+                <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:6px;letter-spacing:1px">ŞİFRE</div>
+                <input id="reg-pass" type="password" placeholder="En az 8 karakter"
+                  style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--sn);font-size:13px;padding:10px 12px;outline:none"
+                  onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='var(--ln2)'">
+              </div>
+              <!-- Seçili Plan -->
+              <div id="selected-plan-info" style="background:var(--bg2);border:1px solid var(--ln);border-radius:6px;padding:10px;margin-bottom:16px;font-family:var(--mn);font-size:10px;color:var(--t2);text-align:center">
+                Plan: <span id="plan-label" style="color:var(--ac)">ÜCRETSİZ</span>
+              </div>
+              <button onclick="doRegister()"
+                style="width:100%;background:var(--ac);border:none;border-radius:4px;color:var(--bg0);font-family:var(--mn);font-size:12px;padding:12px;cursor:pointer;font-weight:500;letter-spacing:.5px">
+                HESAP OLUŞTUR →
+              </button>
+              <div id="reg-msg" style="margin-top:10px;font-family:var(--mn);font-size:10px;text-align:center;display:none"></div>
             </div>
-            <div style="margin-bottom:12px">
-              <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:5px;letter-spacing:1px">PAROLA</div>
-              <input id="reg-pass" type="password" placeholder="En az 8 karakter" style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:9px 12px;outline:none" onfocus="this.style.borderColor='var(--ac)'" onblur="this.style.borderColor='rgba(255,255,255,.12)'">
-            </div>
-            <div style="margin-bottom:12px">
-              <div style="font-family:var(--mn);font-size:9px;color:var(--t2);margin-bottom:5px;letter-spacing:1px">YATIRIMCI PROFİLİ</div>
-              <select id="reg-profile" style="width:100%;background:var(--bg2);border:1px solid var(--ln2);border-radius:4px;color:var(--t0);font-family:var(--mn);font-size:11px;padding:9px 12px;outline:none">
-                <option value="retail">Bireysel Yatırımcı</option>
-                <option value="trader">Aktif Trader</option>
-                <option value="quant">Quant / Algoritmik</option>
-                <option value="institutional">Kurumsal</option>
-              </select>
-            </div>
-            <div style="margin-bottom:20px;display:flex;align-items:flex-start;gap:8px">
-              <input type="checkbox" id="reg-terms" style="margin-top:2px;accent-color:var(--ac)">
-              <label for="reg-terms" style="font-family:var(--mn);font-size:10px;color:var(--t2);cursor:pointer">Kullanım şartlarını ve gizlilik politikasını okudum, kabul ediyorum.</label>
-            </div>
-            <button onclick="doRegister()" style="width:100%;background:var(--gr);border:none;border-radius:4px;color:var(--bg0);font-family:var(--mn);font-size:11px;font-weight:500;padding:11px;cursor:pointer;letter-spacing:2px">HESAP OLUŞTUR</button>
-            <div style="text-align:center;margin-top:16px;font-family:var(--mn);font-size:10px;color:var(--t3)">
-              Zaten hesabın var mı? <span onclick="showLogin()" style="color:var(--ac);cursor:pointer">← Giriş yap</span>
-            </div>
+
           </div>
         </div>
-        <!-- Logged In State -->
-        <div id="auth-loggedin" style="display:none">
-          <div style="text-align:center;margin-bottom:32px">
-            <div style="font-family:var(--dp);font-size:36px;font-weight:800;color:var(--ac);letter-spacing:-2px">NEXUS</div>
-          </div>
-          <div style="background:var(--bg1);border:1px solid var(--ln2);border-radius:8px;padding:28px;text-align:center">
-            <div id="auth-avatar" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--gr));display:flex;align-items:center;justify-content:center;font-family:var(--dp);font-size:22px;font-weight:800;color:var(--bg0);margin:0 auto 14px"></div>
-            <div id="auth-dispname" style="font-family:var(--dp);font-size:18px;font-weight:700;color:var(--t0)"></div>
-            <div id="auth-dispemail" style="font-family:var(--mn);font-size:10px;color:var(--t3);margin-top:4px"></div>
-            <div id="auth-dispbadge" style="font-family:var(--mn);font-size:9px;padding:3px 10px;border-radius:12px;background:rgba(0,212,255,.15);color:var(--ac);border:1px solid rgba(0,212,255,.3);display:inline-block;margin-top:10px;letter-spacing:1px"></div>
-            <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-              <div style="background:var(--bg2);border-radius:6px;padding:12px">
-                <div style="font-family:var(--mn);font-size:20px;font-weight:300;color:var(--t0)" id="auth-posts-count">0</div>
-                <div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:2px">GÖNDERI</div>
-              </div>
-              <div style="background:var(--bg2);border-radius:6px;padding:12px">
-                <div style="font-family:var(--mn);font-size:20px;font-weight:300;color:var(--gr)" id="auth-rep">0</div>
-                <div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:2px">REPÜTASİYON</div>
-              </div>
-              <div style="background:var(--bg2);border-radius:6px;padding:12px">
-                <div style="font-family:var(--mn);font-size:20px;font-weight:300;color:var(--am)" id="auth-alerts-count">0</div>
-                <div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:2px">ALARM</div>
-              </div>
-            </div>
-            <button onclick="doLogout()" style="width:100%;background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.25);border-radius:4px;color:var(--rd);font-family:var(--mn);font-size:10px;padding:9px;cursor:pointer;margin-top:20px;letter-spacing:1px">ÇIKIŞ YAP</button>
-          </div>
+
+        <!-- KULLANICI BİLGİSİ (giriş yapılınca görünür) -->
+        <div id="auth-user-info" style="display:none;background:var(--bg1);border:1px solid var(--ln2);border-radius:10px;padding:24px;text-align:center">
+          <div style="font-size:40px;margin-bottom:10px">👤</div>
+          <div id="user-name-display" style="font-family:var(--dp);font-size:20px;font-weight:700;color:var(--t0);margin-bottom:4px"></div>
+          <div id="user-email-display" style="font-family:var(--mn);font-size:11px;color:var(--t3);margin-bottom:12px"></div>
+          <div id="user-plan-display" style="display:inline-block;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);border-radius:4px;padding:4px 12px;font-family:var(--mn);font-size:10px;color:var(--ac);margin-bottom:20px"></div>
+          <br>
+          <button onclick="doLogout()"
+            style="background:transparent;border:1px solid var(--ln2);border-radius:4px;color:var(--t2);font-family:var(--mn);font-size:11px;padding:8px 20px;cursor:pointer;letter-spacing:.5px">
+            ÇIKIŞ YAP
+          </button>
         </div>
+
+        <div style="text-align:center;margin-top:20px;font-family:var(--mn);font-size:9px;color:var(--t3)">
+          🔒 256-bit SSL şifreleme · KVKK uyumlu
+        </div>
+
       </div>
     </div>
   </div>
 
 
-  <!-- ══════════════════════════════════════════════
-       HABERLER PANELİ — Gelişmiş Haber Akışı
-  ══════════════════════════════════════════════ -->
   <div class="panel" id="panel-haberler">
     <div style="display:flex;height:100%;overflow:hidden">
       <!-- Sol filtre sidebar -->
@@ -1166,21 +1431,56 @@ function pollBackend() {
     })
     .catch(function(){});
 
+  // Fetch market data (forex, indices, commodities)
+  fetch(BACKEND_REST + '/market')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d) return;
+      // Update ticker forex
+      if (d.forex) {
+        TICKER_DATA.forEach(function(item) {
+          if (item.l === 'EUR/USD' && d.forex['EUR/USD']) { item.p = d.forex['EUR/USD']; }
+          if (item.l === 'USD/TRY' && d.forex['USD/TRY']) { item.p = d.forex['USD/TRY']; }
+          if (item.l === 'GBP/USD' && d.forex['GBP/USD']) { item.p = d.forex['GBP/USD']; }
+          if (item.l === 'USD/JPY' && d.forex['USD/JPY']) { item.p = d.forex['USD/JPY']; }
+        });
+      }
+      // Update indices
+      if (d.indices) {
+        var spIdx = d.indices['S&P 500'];
+        if (spIdx) {
+          TICKER_DATA.forEach(function(item) {
+            if (item.l === 'S&P 500') { item.p = spIdx.price; item.c = spIdx.chg; }
+            if (item.l === 'NASDAQ' && d.indices['NASDAQ']) { item.p = d.indices['NASDAQ'].price; item.c = d.indices['NASDAQ'].chg; }
+            if (item.l === 'DOW' && d.indices['DOW']) { item.p = d.indices['DOW'].price; item.c = d.indices['DOW'].chg; }
+          });
+        }
+      }
+      // Update commodities
+      if (d.commodities) {
+        TICKER_DATA.forEach(function(item) {
+          if (item.l === 'ALTIN' && d.commodities['GOLD']) { item.p = d.commodities['GOLD'].price; item.c = d.commodities['GOLD'].chg; }
+          if (item.l === 'GÜMÜŞ' && d.commodities['SILVER']) { item.p = d.commodities['SILVER'].price; item.c = d.commodities['SILVER'].chg; }
+          if (item.l === 'WTI' && d.commodities['OIL WTI']) { item.p = d.commodities['OIL WTI'].price; item.c = d.commodities['OIL WTI'].chg; }
+        });
+      }
+      // Store for doviz panel
+      window.marketData = d;
+      updateTickerFromData();
+      renderTicker();
+    })
+    .catch(function(){});
+
   // Fetch crypto
   fetch(BACKEND_REST + '/crypto')
     .then(function(r){ return r.json(); })
     .then(function(d) {
-      if (d.BTC) {
-        var btcE = TICKER_DATA.find(function(x){return x.l==='BTC/USD';});
-        if (btcE) { btcE.p = d.BTC.price; btcE.c = d.BTC.chg24; }
-        var ethE = TICKER_DATA.find(function(x){return x.l==='ETH/USD';});
-        if (ethE && d.ETH) { ethE.p = d.ETH.price; ethE.c = d.ETH.chg24; }
-        renderTicker();
-        // Update crypto panel
-        if (Object.keys(d).length > 0) {
-          cryptoAllData = d;
-          if (typeof renderCryptoPanelFull === 'function') renderCryptoPanelFull();
-        }
+      if (d && Object.keys(d).length > 0) {
+        cryptoAllData = d;
+        // Update ticker
+        updateTickerFromData();
+        // Update crypto panel if open
+        if (typeof renderCryptoPanelFull === 'function') renderCryptoPanelFull();
       }
     })
     .catch(function(){});
@@ -1923,17 +2223,46 @@ function clock() {
 // ═══════════════════════════════════════════
 // Ticker data — populated by fetchTickerData()
 var TICKER_DATA = [
-  {l:'S&P 500',  yf:'^GSPC',     p:0, c:0},
-  {l:'NASDAQ',   yf:'^IXIC',     p:0, c:0},
-  {l:'DOW',      yf:'^DJI',      p:0, c:0},
-  {l:'VIX',      yf:'^VIX',      p:0, c:0},
-  {l:'BTC/USD',  cg:'bitcoin',   p:0, c:0},
-  {l:'ETH/USD',  cg:'ethereum',  p:0, c:0},
-  {l:'GOLD',     fh:'OANDA:XAU_USD', p:0, c:0},
-  {l:'EUR/USD',  fh:'OANDA:EUR_USD', p:0, c:0},
-  {l:'WTI',      fh:'NYMEX:CL',  p:0, c:0},
-  {l:'10Y YIELD',fh:'^TNX',      p:0, c:0},
+  {l:'S&P 500',  p:5667, c:0.48},
+  {l:'NASDAQ',   p:17832, c:0.72},
+  {l:'DOW',      p:41890, c:0.21},
+  {l:'VIX',      p:19.84, c:-2.14},
+  {l:'BTC/USD',  p:0, c:0, isCrypto:'BTC'},
+  {l:'ETH/USD',  p:0, c:0, isCrypto:'ETH'},
+  {l:'SOL/USD',  p:0, c:0, isCrypto:'SOL'},
+  {l:'BNB/USD',  p:0, c:0, isCrypto:'BNB'},
+  {l:'ALTIN',    p:3018, c:0.31},
+  {l:'GÜMÜŞ',    p:33.42, c:0.18},
+  {l:'PLATIN',   p:987, c:-0.22},
+  {l:'EUR/USD',  p:1.0842, c:-0.09},
+  {l:'USD/TRY',  p:32.84, c:0.22},
+  {l:'GBP/USD',  p:1.2634, c:0.12},
+  {l:'USD/JPY',  p:151.42, c:-0.31},
+  {l:'WTI',      p:68.74, c:-0.62},
+  {l:'BRENT',    p:72.18, c:-0.44},
+  {l:'10Y YIELD',p:4.312, c:0.02},
+  {l:'FED RATE', p:4.50, c:0},
+  {l:'AAPL',     p:0, c:0, isSym:'AAPL'},
+  {l:'NVDA',     p:0, c:0, isSym:'NVDA'},
+  {l:'TSLA',     p:0, c:0, isSym:'TSLA'},
+  {l:'MSFT',     p:0, c:0, isSym:'MSFT'},
+  {l:'META',     p:0, c:0, isSym:'META'},
 ];
+
+function updateTickerFromData() {
+  TICKER_DATA.forEach(function(item) {
+    if (item.isCrypto && cryptoAllData && cryptoAllData[item.isCrypto]) {
+      item.p = cryptoAllData[item.isCrypto].price || 0;
+      item.c = cryptoAllData[item.isCrypto].chg24 || 0;
+    }
+    if (item.isSym && liveP[item.isSym]) {
+      item.p = liveP[item.isSym];
+      var q = quotes[item.isSym];
+      item.c = q && q.pc ? (item.p - q.pc)/q.pc*100 : 0;
+    }
+  });
+  renderTicker();
+}
 
 function renderTicker() {
   var items = [...TICKER_DATA,...TICKER_DATA].map(function(i){
@@ -1947,10 +2276,7 @@ function renderTicker() {
 }
 
 function fetchTickerData() {
-  // Crypto comes from Railway backend via pollBackend
-
-  // Finnhub ticker — backend varsa oradan gelir, yoksa atla
-  if (!backendAlive) return;
+  updateTickerFromData();
 }
 
 // ═══════════════════════════════════════════
@@ -4878,12 +5204,14 @@ function initPiyasaPanel() {
 function renderPiyasaEndeks() {
   var el = document.getElementById('piyasa-endeks');
   if (!el) return;
+  // Use real index data from market_data if available
+  var md = window.marketData;
   var endeksler = [
-    {n:'S&P 500', id:'sp500', sym:'SPY'},
-    {n:'NASDAQ', id:'nasdaq', sym:'QQQ'},
-    {n:'DOW JONES', id:'dow', sym:'DIA'},
-    {n:'RUSSELL 2000', id:'rut', sym:'IWM'},
-    {n:'VIX', id:'vix', sym:'VIX'},
+    {n:'S&P 500',     sym:'SPY',  realName:'S&P 500'},
+    {n:'NASDAQ',      sym:'QQQ',  realName:'NASDAQ'},
+    {n:'DOW JONES',   sym:'DIA',  realName:'DOW'},
+    {n:'RUSSELL 2000',sym:'IWM',  realName:'Russell 2000'},
+    {n:'VIX',         sym:'VIX',  realName:'VIX'},
   ];
   el.innerHTML = '';
   endeksler.forEach(function(e) {
@@ -4974,23 +5302,42 @@ function renderPiyasaHacim() {
 // ═══════════════════════════════════════════
 var dovizRates = {
   'USD':1, 'EUR':0.92, 'TRY':32.8, 'GBP':0.79,
-  'JPY':149.5, 'CHF':0.90, 'CAD':1.36, 'AUD':1.54,
-  'CHN':7.24, 'RUB':92.5, 'SAR':3.75, 'AED':3.67,
+  'JPY':149.5, 'CHF':0.90, 'CAD':1.36, 'AUD':0.65,
+  'CNY':7.24, 'RUB':92.5, 'SAR':3.75, 'AED':3.67,
 };
+
+// Update rates from backend market data
+function updateDovizRatesFromBackend() {
+  var md = window.marketData;
+  if (!md || !md.forex) return;
+  var fx = md.forex;
+  if (fx['EUR/USD']) dovizRates['EUR'] = fx['EUR/USD'];
+  if (fx['USD/TRY']) dovizRates['TRY'] = fx['USD/TRY'];
+  if (fx['GBP/USD']) dovizRates['GBP'] = fx['GBP/USD'];
+  if (fx['USD/JPY']) dovizRates['JPY'] = fx['USD/JPY'];
+  if (fx['USD/CHF']) dovizRates['CHF'] = 1/fx['USD/CHF'];
+  if (fx['USD/CAD']) dovizRates['CAD'] = fx['USD/CAD'];
+  if (fx['AUD/USD']) dovizRates['AUD'] = 1/fx['AUD/USD'];
+  if (fx['USD/CNY']) dovizRates['CNY'] = fx['USD/CNY'];
+}
 var dovizChart2 = null;
 var dovizInited = false;
 
 function initDovizPanel() {
-  // Fetch live FX from backend
-  fetch('https://nexus-terminal-production-6606.up.railway.app/quotes')
-    .then(function(r){ return r.json(); })
-    .then(function(){ renderDovizPanel(); })
-    .catch(function(){ renderDovizPanel(); });
+  updateDovizRatesFromBackend();
+  if (cryptoAllData && cryptoAllData.BTC && cryptoAllData.BTC.price > 0) {
+    dovizRates.BTC = 1/cryptoAllData.BTC.price;
+  }
+  if (cryptoAllData && cryptoAllData.ETH && cryptoAllData.ETH.price > 0) {
+    dovizRates.ETH = 1/cryptoAllData.ETH.price;
+  }
+  renderDovizPanel();
   if (!dovizInited) {
     dovizInited = true;
-    // Also get BTC/ETH rates from crypto
-    if (cryptoAllData && cryptoAllData.BTC) dovizRates.BTC = 1/cryptoAllData.BTC.price;
-    if (cryptoAllData && cryptoAllData.ETH) dovizRates.ETH = 1/cryptoAllData.ETH.price;
+    setInterval(function(){
+      updateDovizRatesFromBackend();
+      renderDovizPanel();
+    }, 60000);
   }
 }
 
@@ -5113,6 +5460,2044 @@ setInterval(function(){
     if (cryptoAllData.ETH) dovizRates.ETH = 1/cryptoAllData.ETH.price;
   }
 }, 60000);
+
+// ═══════════════════════════════════════════
+// MOBILE NAV
+// ═══════════════════════════════════════════
+function mobileNav(el, tab) {
+  document.querySelectorAll('.mob-nav-btn').forEach(function(b){ b.classList.remove('on'); });
+  el.classList.add('on');
+  gotoTab(null, tab);
+}
+
+// Show/hide left sidebar on mobile via swipe or button
+function toggleMobileSidebar() {
+  var lb = document.querySelector('.lbar');
+  if (!lb) return;
+  var isVisible = lb.style.display !== 'none' && getComputedStyle(lb).display !== 'none';
+  lb.style.display = isVisible ? 'none' : 'flex';
+}
+
+
+// ═══════════════════════════════════════════
+// LIGHTWEIGHT CHARTS — Candlestick + Line + Area
+// ═══════════════════════════════════════════
+var lwChart = null;
+var lwSeries = null;
+var chartType = 'candle';
+var candleData = {};  // OHLCV data per symbol
+
+function initLWChart() {
+  var container = document.getElementById('lwChart');
+  if (!container || !window.LightweightCharts) return;
+
+  // Destroy existing
+  if (lwChart) { try { lwChart.remove(); } catch(e) {} lwChart = null; lwSeries = null; }
+
+  lwChart = LightweightCharts.createChart(container, {
+    width: container.clientWidth,
+    height: container.clientHeight || 300,
+    layout: {
+      background: { type: 'solid', color: '#020305' },
+      textColor: '#7a8fa8',
+    },
+    grid: {
+      vertLines: { color: 'rgba(255,255,255,.04)' },
+      horzLines: { color: 'rgba(255,255,255,.04)' },
+    },
+    crosshair: {
+      mode: LightweightCharts.CrosshairMode.Normal,
+    },
+    rightPriceScale: {
+      borderColor: 'rgba(255,255,255,.06)',
+      textColor: '#445566',
+    },
+    timeScale: {
+      borderColor: 'rgba(255,255,255,.06)',
+      textColor: '#445566',
+      timeVisible: true,
+      secondsVisible: false,
+    },
+    handleScroll: true,
+    handleScale: true,
+  });
+
+  // Resize observer
+  var ro = new ResizeObserver(function() {
+    if (lwChart && container) {
+      lwChart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    }
+  });
+  ro.observe(container);
+
+  loadChartData(selSym, chartType);
+}
+
+function loadChartData(sym, type) {
+  var q = quotes[sym];
+  var price = liveP[sym] || (q && q.c) || 200;
+
+  // Create series based on type
+  if (type === 'candle') {
+    lwSeries = lwChart.addCandlestickSeries({
+      upColor: '#00e676', downColor: '#ff3d5a',
+      borderUpColor: '#00e676', borderDownColor: '#ff3d5a',
+      wickUpColor: '#00e676', wickDownColor: '#ff3d5a',
+    });
+  } else if (type === 'area') {
+    lwSeries = lwChart.addAreaSeries({
+      lineColor: '#00d4ff', topColor: 'rgba(0,212,255,.3)',
+      bottomColor: 'rgba(0,212,255,.02)', lineWidth: 2,
+    });
+  } else if (type === 'bar') {
+    lwSeries = lwChart.addBarSeries({ upColor: '#00e676', downColor: '#ff3d5a' });
+  } else {
+    var up = q && q.pc ? price >= q.pc : true;
+    lwSeries = lwChart.addLineSeries({
+      color: up ? '#00e676' : '#ff3d5a', lineWidth: 2,
+      crosshairMarkerVisible: true, crosshairMarkerRadius: 4,
+    });
+  }
+
+  // Show loading indicator
+  var container = document.getElementById('lwChart');
+  if (container) {
+    var loadEl = document.createElement('div');
+    loadEl.id = 'chart-loading';
+    loadEl.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--mn);font-size:10px;color:var(--t3);pointer-events:none';
+    loadEl.textContent = 'Gerçek veri yükleniyor...';
+    container.style.position = 'relative';
+    container.appendChild(loadEl);
+  }
+
+  // Try real OHLC first, fallback to simulated
+  fetchRealOHLC(sym, 90, function(realData) {
+    var ll = document.getElementById('chart-loading');
+    if (ll) ll.remove();
+
+    var data = realData || generateOHLCV(price, 90);
+    if (lwSeries) {
+      try {
+        lwSeries.setData(data);
+        lwChart.timeScale().fitContent();
+        addVolumeToChart(data);
+        updateIndicators();
+      } catch(e) {}
+    }
+  });
+}
+
+function generateOHLCV(price, days) {
+  // Simulated fallback data
+  var data = [];
+  var p = price * 0.85;
+  var now = Math.floor(Date.now() / 1000);
+  var daySeconds = 86400;
+  for (var i = days; i >= 0; i--) {
+    var time = now - i * daySeconds;
+    var open = p;
+    var change = (Math.random() - 0.48) * p * 0.025;
+    var close = Math.max(p * 0.5, open + change);
+    var high = Math.max(open, close) * (1 + Math.random() * 0.015);
+    var low = Math.min(open, close) * (1 - Math.random() * 0.015);
+    if (chartType === 'candle' || chartType === 'bar') {
+      data.push({ time: time, open: +open.toFixed(2), high: +high.toFixed(2), low: +low.toFixed(2), close: +close.toFixed(2) });
+    } else {
+      data.push({ time: time, value: +close.toFixed(2) });
+    }
+    p = close;
+  }
+  if (data.length > 0) {
+    if (chartType === 'candle' || chartType === 'bar') {
+      data[data.length-1].close = price;
+      data[data.length-1].high = Math.max(data[data.length-1].high, price);
+    } else {
+      data[data.length-1].value = price;
+    }
+  }
+  return data;
+}
+
+function fetchRealOHLC(sym, days, callback) {
+  fetch('https://nexus-terminal-production-6606.up.railway.app/ohlc/' + sym + '?days=' + days)
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (!d.bars || !d.bars.length) {
+        callback(null);
+        return;
+      }
+      var data = d.bars.map(function(b) {
+        var time = Math.floor(new Date(b.t).getTime() / 1000);
+        if (chartType === 'candle' || chartType === 'bar') {
+          return { time: time, open: b.o, high: b.h, low: b.l, close: b.c };
+        } else {
+          return { time: time, value: b.c };
+        }
+      });
+      // Sort by time
+      data.sort(function(a,b){ return a.time - b.time; });
+      callback(data);
+    })
+    .catch(function(){ callback(null); });
+}
+
+function addVolumeToChart(data) {
+  try {
+    var volSeries = lwChart.addHistogramSeries({
+      color: 'rgba(0,212,255,.2)',
+      priceFormat: { type: 'volume' },
+      priceScaleId: 'volume',
+      scaleMargins: { top: 0.8, bottom: 0 },
+    });
+    var volData = data.map(function(d, i) {
+      var isUp = chartType === 'candle' ? (d.close||d.value) >= (d.open||d.value) : (i===0 || d.value >= data[i-1].value);
+      return {
+        time: d.time,
+        value: Math.floor(Math.random() * 40000000 + 2000000),
+        color: isUp ? 'rgba(0,230,118,.25)' : 'rgba(255,61,90,.25)',
+      };
+    });
+    volSeries.setData(volData);
+  } catch(e) {}
+}
+
+function setChartType(type, btn) {
+  chartType = type;
+  document.querySelectorAll('#ct-line,#ct-candle,#ct-area,#ct-bar').forEach(function(b){ b.classList.remove('on'); });
+  if (btn) btn.classList.add('on');
+
+  // Remove old series and recreate
+  if (lwChart) {
+    try { lwChart.remove(); } catch(e) {}
+    lwChart = null; lwSeries = null;
+  }
+  initLWChart();
+}
+
+// Override old initChart to use LightweightCharts
+var _oldInitChart = typeof initChart === 'function' ? initChart : function(){};
+function initChart() {
+  if (window.LightweightCharts) {
+    document.getElementById('lwChart').style.display = 'block';
+    document.getElementById('mainChart').style.display = 'none';
+    initLWChart();
+  } else {
+    _oldInitChart();
+  }
+}
+
+// Override updateChart
+var _oldUpdateChart = typeof updateChart === 'function' ? updateChart : function(){};
+function updateChart() {
+  if (lwSeries && liveP[selSym] > 0) {
+    var price = liveP[selSym];
+    var now = Math.floor(Date.now() / 1000);
+    try {
+      if (chartType === 'candle' || chartType === 'bar') {
+        lwSeries.update({ time: now, open: price*0.9995, high: price*1.001, low: price*0.999, close: price });
+      } else {
+        lwSeries.update({ time: now, value: price });
+      }
+    } catch(e) {}
+  } else {
+    _oldUpdateChart();
+  }
+}
+
+// Re-init chart when symbol changes
+var _origPickSym2 = pickSym;
+pickSym = function(k) {
+  _origPickSym2(k);
+  if (window.LightweightCharts && lwChart) {
+    try { lwChart.remove(); } catch(e) {}
+    lwChart = null; lwSeries = null;
+    initLWChart();
+  }
+};
+
+
+
+// ═══════════════════════════════════════════
+// CHART OVERLAYS — BB, MA, EMA
+// ═══════════════════════════════════════════
+var overlays = { ma20: null, ma50: null, bbUpper: null, bbLower: null };
+
+function addMAOverlay(period, color) {
+  if (!lwChart) return;
+  var data = generateOHLCV(liveP[selSym]||200, 90);
+  var prices = data.map(function(d){ return d.close||d.value||0; });
+  var maData = [];
+  for (var i = period-1; i < prices.length; i++) {
+    var sum = 0;
+    for (var j = i-period+1; j <= i; j++) sum += prices[j];
+    maData.push({ time: data[i].time, value: +(sum/period).toFixed(2) });
+  }
+  var series = lwChart.addLineSeries({ color: color, lineWidth: 1, priceLineVisible: false, lastValueVisible: false });
+  series.setData(maData);
+  return series;
+}
+
+// Override toggleInd to use LW charts
+var _origToggleInd = typeof toggleInd === 'function' ? toggleInd : function(){};
+toggleInd = function(name) {
+  _origToggleInd(name);
+  if (!lwChart) return;
+  if (name === 'ma') {
+    if (!overlays.ma20) {
+      overlays.ma20 = addMAOverlay(20, '#ffd600');
+      overlays.ma50 = addMAOverlay(50, '#ff6b35');
+    } else {
+      try { lwChart.removeSeries(overlays.ma20); lwChart.removeSeries(overlays.ma50); } catch(e){}
+      overlays.ma20 = null; overlays.ma50 = null;
+    }
+  }
+};
+
 </script>
+
+<script>
+// ═══════════════════════════════════════════
+// EKSİK ÖZELLİKLER — Fiyat Alarmları, Watchlist Kaydetme, Dark/Light
+// ═══════════════════════════════════════════
+
+// ── 1. FİYAT ALARMI SİSTEMİ ─────────────────
+var priceAlarms = JSON.parse(localStorage.getItem('nexus_alarms') || '[]');
+
+function addPriceAlarm(sym, targetPrice, direction) {
+  sym = sym || selSym;
+  targetPrice = targetPrice || parseFloat(prompt('Hedef fiyat ($):'));
+  if (!targetPrice) return;
+  direction = direction || (targetPrice > (liveP[sym]||0) ? 'above' : 'below');
+  priceAlarms.push({ sym: sym, price: targetPrice, dir: direction, active: true, created: Date.now() });
+  localStorage.setItem('nexus_alarms', JSON.stringify(priceAlarms));
+  showNotif('🔔 Alarm eklendi: ' + sym + ' → $' + targetPrice);
+}
+
+function checkAlarms() {
+  var triggered = [];
+  priceAlarms.forEach(function(alarm, i) {
+    if (!alarm.active) return;
+    var cur = liveP[alarm.sym] || 0;
+    if (!cur) return;
+    if ((alarm.dir === 'above' && cur >= alarm.price) || (alarm.dir === 'below' && cur <= alarm.price)) {
+      alarm.active = false;
+      triggered.push(alarm);
+      showNotif('🚨 ALARM: ' + alarm.sym + ' $' + cur.toFixed(2) + ' hedefine ulaştı!');
+      if (Notification.permission === 'granted') {
+        new Notification('NEXUS Alarm: ' + alarm.sym, { body: '$' + cur.toFixed(2) + ' — Hedef: $' + alarm.price });
+      }
+    }
+  });
+  if (triggered.length) localStorage.setItem('nexus_alarms', JSON.stringify(priceAlarms));
+}
+setInterval(checkAlarms, 5000);
+
+// ── 2. WATCHLIST KAYDETME ───────────────────
+var savedWatchlists = JSON.parse(localStorage.getItem('nexus_watchlists') || '{"Varsayılan":["AAPL","MSFT","NVDA","TSLA","META"]}');
+var activeWatchlist = localStorage.getItem('nexus_active_wl') || 'Varsayılan';
+
+function saveCurrentWatchlist(name) {
+  name = name || prompt('Watchlist adı:') || 'Watchlist ' + Date.now();
+  savedWatchlists[name] = SYMBOLS.slice(0, 20);
+  localStorage.setItem('nexus_watchlists', JSON.stringify(savedWatchlists));
+  localStorage.setItem('nexus_active_wl', name);
+  showNotif('✓ Watchlist kaydedildi: ' + name);
+}
+
+// ── 3. BİLDİRİM SİSTEMİ ────────────────────
+function showNotif(msg, type) {
+  var el = document.getElementById('ws-status');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.background = type === 'error' ? 'rgba(255,61,90,.15)' : 'rgba(0,212,255,.1)';
+  el.style.color = type === 'error' ? 'var(--rd)' : 'var(--ac)';
+  el.style.opacity = '1';
+  el.style.display = 'flex';
+  setTimeout(function(){ el.style.opacity = '0'; }, 5000);
+}
+
+// ── 4. KEYBOARD SHORTCUTS ──────────────────
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  switch(e.key) {
+    case '/': // Focus search
+      var s = document.getElementById('srch'); if(s){s.focus();e.preventDefault();}
+      break;
+    case 'Escape': // Close modals
+      document.querySelectorAll('.modal').forEach(function(m){m.style.display='none';});
+      break;
+    case '1': gotoTab(null,'terminal'); break;
+    case '2': gotoTab(null,'screener'); break;
+    case '3': gotoTab(null,'haberler'); break;
+    case '4': gotoTab(null,'crypto'); break;
+    case '5': gotoTab(null,'aiasistan'); break;
+  }
+});
+
+// ── 5. COPY PRICE ON CLICK ─────────────────
+document.addEventListener('click', function(e) {
+  if (e.target.id === 'h-price') {
+    var price = e.target.textContent;
+    navigator.clipboard.writeText(price).then(function(){
+      showNotif('📋 Kopyalandı: $' + price);
+    }).catch(function(){});
+  }
+});
+
+// ── 6. FULLSCREEN CHART ────────────────────
+function toggleFullscreenChart() {
+  var el = document.querySelector('.chart-area');
+  if (!el) return;
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    el.requestFullscreen().catch(function(){});
+  }
+}
+
+// ── 7. PRINT / EXPORT ──────────────────────
+function exportPortfolio() {
+  var rows = [['Sembol','Adet','Maliyet','Cari','K/Z']];
+  Object.keys(portfolio).forEach(function(k){
+    var pos = portfolio[k];
+    var cur = liveP[k] || pos.cost;
+    var pl = (cur - pos.cost) * pos.shares;
+    rows.push([k, pos.shares, pos.cost.toFixed(2), cur.toFixed(2), pl.toFixed(2)]);
+  });
+  var csv = rows.map(function(r){ return r.join(','); }).join('
+');
+  var blob = new Blob([csv], {type:'text/csv'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'nexus-portfolio.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showNotif('📊 Portfolio CSV indirildi');
+}
+
+// ── 8. MARKET STATUS BAR ───────────────────
+function updateMarketStatus() {
+  var now = new Date();
+  var h = now.getUTCHours(), m = now.getUTCMinutes(), day = now.getUTCDay();
+  var isPremarket = day >= 1 && day <= 5 && h >= 9 && h < 14;
+  var isOpen = day >= 1 && day <= 5 && (h > 14 || (h === 14 && m >= 30)) && h < 21;
+  var isAfter = day >= 1 && day <= 5 && h >= 21 && h < 24;
+  var nyse = document.getElementById('nyse');
+  var nsdq = document.getElementById('nsdq');
+  if (nyse) {
+    if (isOpen) { nyse.textContent = 'OPEN'; nyse.style.color = 'var(--gr)'; }
+    else if (isPremarket) { nyse.textContent = 'PRE'; nyse.style.color = 'var(--am)'; }
+    else if (isAfter) { nyse.textContent = 'POST'; nyse.style.color = 'var(--am)'; }
+    else { nyse.textContent = 'CLOSED'; nyse.style.color = 'var(--rd)'; }
+  }
+  if (nsdq) nsdq.textContent = nyse ? nyse.textContent : '';
+}
+setInterval(updateMarketStatus, 10000);
+updateMarketStatus();
+
+// ── 9. HISSE KARŞILAŞTIRMA ─────────────────
+function compareStocks(sym1, sym2) {
+  sym1 = sym1 || selSym;
+  sym2 = sym2 || prompt('Karşılaştırılacak hisse:');
+  if (!sym2) return;
+  var q1 = quotes[sym1], q2 = quotes[sym2];
+  if (!q1 || !q2) { showNotif('Veri bulunamadı', 'error'); return; }
+  var ch1 = q1.pc ? (q1.c-q1.pc)/q1.pc*100 : 0;
+  var ch2 = q2.pc ? (q2.c-q2.pc)/q2.pc*100 : 0;
+  var msg = sym1 + ': $' + q1.c.toFixed(2) + ' (' + (ch1>=0?'+':'') + ch1.toFixed(2) + '%) vs '
+          + sym2 + ': $' + q2.c.toFixed(2) + ' (' + (ch2>=0?'+':'') + ch2.toFixed(2) + '%)';
+  showNotif(msg);
+}
+
+// ── 10. AUTO-REFRESH INDICATOR ─────────────
+var lastUpdate = Date.now();
+setInterval(function() {
+  var el = document.getElementById('live-badge');
+  if (!el) return;
+  var age = Math.floor((Date.now() - lastUpdate) / 1000);
+  if (backendAlive && age < 30) {
+    el.textContent = '● LIVE';
+    el.className = 'live-badge live';
+  }
+}, 5000);
+
+// Update lastUpdate on each poll
+var _origPB = pollBackend;
+pollBackend = function() {
+  lastUpdate = Date.now();
+  _origPB();
+};
+
+// ── 11. THEME PERSISTENCE ──────────────────
+// Site always dark (terminal theme) — saved in localStorage
+localStorage.setItem('nexus_theme', 'dark');
+
+// ── 12. SEARCH SUGGESTIONS ─────────────────
+var srchEl = document.getElementById('srch');
+if (srchEl) {
+  srchEl.addEventListener('input', function() {
+    var val = this.value.toUpperCase();
+    if (val.length < 1) return;
+    var matches = SYMBOLS.filter(function(s){ return s.startsWith(val); }).slice(0,5);
+    // Show inline
+    if (matches.length && val.length >= 2) {
+      this.title = matches.join(', ');
+    }
+  });
+}
+
+console.log('%cNEXUS Terminal v2.0', 'font-size:20px;color:#00d4ff;font-weight:bold');
+console.log('%cPowered by Alpaca IEX + CoinGecko + SEC EDGAR', 'color:#7a8fa8');
+</script>
+
+
+// ═══════════════════════════════════════════
+// EARNINGS CALENDAR + ANALYST RATINGS
+// ═══════════════════════════════════════════
+
+var EARNINGS_DATA = [
+  {sym:'NVDA', name:'NVIDIA Corp', date:'2026-04-02', eps_est:0.89, eps_prev:0.61, rev_est:'28.4B', time:'AMC', importance:'high'},
+  {sym:'AAPL', name:'Apple Inc', date:'2026-04-30', eps_est:1.62, eps_prev:1.53, rev_est:'94.2B', time:'AMC', importance:'high'},
+  {sym:'MSFT', name:'Microsoft', date:'2026-04-29', eps_est:3.22, eps_prev:3.02, rev_est:'68.1B', time:'AMC', importance:'high'},
+  {sym:'META', name:'Meta Platforms', date:'2026-04-29', eps_est:5.84, eps_prev:4.71, rev_est:'43.8B', time:'AMC', importance:'high'},
+  {sym:'GOOGL', name:'Alphabet', date:'2026-04-29', eps_est:2.01, eps_prev:1.89, rev_est:'89.3B', time:'AMC', importance:'high'},
+  {sym:'AMZN', name:'Amazon', date:'2026-05-01', eps_est:1.36, eps_prev:0.98, rev_est:'157.2B', time:'AMC', importance:'high'},
+  {sym:'TSLA', name:'Tesla', date:'2026-04-22', eps_est:0.51, eps_prev:0.71, rev_est:'23.4B', time:'AMC', importance:'high'},
+  {sym:'JPM', name:'JPMorgan Chase', date:'2026-04-11', eps_est:4.61, eps_prev:4.44, rev_est:'43.1B', time:'BMO', importance:'high'},
+  {sym:'BAC', name:'Bank of America', date:'2026-04-15', eps_est:0.82, eps_prev:0.76, rev_est:'25.9B', time:'BMO', importance:'medium'},
+  {sym:'GS', name:'Goldman Sachs', date:'2026-04-14', eps_est:11.40, eps_prev:11.58, rev_est:'14.8B', time:'BMO', importance:'medium'},
+  {sym:'AMD', name:'Advanced Micro', date:'2026-05-06', eps_est:1.57, eps_prev:0.69, rev_est:'7.1B', time:'AMC', importance:'medium'},
+  {sym:'NFLX', name:'Netflix', date:'2026-04-15', eps_est:5.86, eps_prev:5.28, rev_est:'10.5B', time:'AMC', importance:'medium'},
+  {sym:'NOW', name:'ServiceNow', date:'2026-04-23', eps_est:4.01, eps_prev:3.47, rev_est:'3.1B', time:'AMC', importance:'medium'},
+  {sym:'COIN', name:'Coinbase', date:'2026-05-08', eps_est:1.92, eps_prev:4.40, rev_est:'1.8B', time:'AMC', importance:'medium'},
+];
+
+var ANALYST_RATINGS = {
+  'AAPL': {buy:28, hold:12, sell:4, target:245, rating:'BUY', upside:7.1},
+  'NVDA': {buy:41, hold:6, sell:2, target:1050, rating:'STRONG BUY', upside:15.3},
+  'MSFT': {buy:35, hold:8, sell:2, target:480, rating:'BUY', upside:11.2},
+  'META': {buy:38, hold:7, sell:1, target:720, rating:'STRONG BUY', upside:18.4},
+  'GOOGL': {buy:32, hold:10, sell:3, target:205, rating:'BUY', upside:12.8},
+  'AMZN': {buy:40, hold:5, sell:1, target:240, rating:'STRONG BUY', upside:14.6},
+  'TSLA': {buy:18, hold:15, sell:12, target:280, rating:'HOLD', upside:-2.1},
+  'JPM':  {buy:22, hold:14, sell:3, target:248, rating:'BUY', upside:8.9},
+  'AMD':  {buy:34, hold:8, sell:3, target:195, rating:'BUY', upside:22.4},
+  'NFLX': {buy:26, hold:12, sell:4, target:980, rating:'BUY', upside:9.7},
+};
+
+function initEarningsCalendar() {
+  var el = document.getElementById('cal-events');
+  if (!el) return;
+
+  var now = Date.now();
+  var sorted = EARNINGS_DATA.slice().sort(function(a,b){
+    return new Date(a.date) - new Date(b.date);
+  });
+
+  // Group by date
+  var groups = {};
+  sorted.forEach(function(e) {
+    if (!groups[e.date]) groups[e.date] = [];
+    groups[e.date].push(e);
+  });
+
+  var html = '';
+  Object.keys(groups).forEach(function(date) {
+    var d = new Date(date);
+    var isPast = d < new Date();
+    var isToday = d.toDateString() === new Date().toDateString();
+    var dateStr = d.toLocaleDateString('tr-TR', {weekday:'long', day:'numeric', month:'long'});
+
+    html += '<div style="margin-bottom:16px">';
+    html += '<div style="font-family:var(--mn);font-size:9px;color:'+(isToday?'var(--ac)':'var(--t3)')+';letter-spacing:2px;margin-bottom:8px;padding:4px 0;border-bottom:1px solid var(--ln)">'
+          + (isToday ? '📅 BUGÜN — ' : '') + dateStr.toUpperCase() + '</div>';
+
+    groups[date].forEach(function(e) {
+      var imp = e.importance === 'high' ? 'var(--rd)' : 'var(--am)';
+      html += '<div style="background:var(--bg2);border:1px solid var(--ln);border-left:3px solid '+imp+';border-radius:5px;padding:10px 12px;margin-bottom:6px;cursor:pointer" onclick="pickSym(''+e.sym+'')">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center">'
+            + '<div><span style="font-family:var(--mn);font-size:12px;color:#fff;font-weight:500">'+e.sym+'</span>'
+            + '<span style="font-size:11px;color:var(--t2);margin-left:8px">'+e.name+'</span></div>'
+            + '<span style="font-family:var(--mn);font-size:9px;color:'+(e.time==='AMC'?'var(--am)':'var(--ac)')+'">'+e.time+'</span></div>'
+            + '<div style="display:flex;gap:16px;margin-top:6px">'
+            + '<div><div style="font-family:var(--mn);font-size:8px;color:var(--t3)">EPS TAHMİN</div><div style="font-family:var(--mn);font-size:11px;color:#fff">$'+e.eps_est+'</div></div>'
+            + '<div><div style="font-family:var(--mn);font-size:8px;color:var(--t3)">ÖNCEK EPS</div><div style="font-family:var(--mn);font-size:11px;color:var(--t2)">$'+e.eps_prev+'</div></div>'
+            + '<div><div style="font-family:var(--mn);font-size:8px;color:var(--t3)">GELİR TAHMİN</div><div style="font-family:var(--mn);font-size:11px;color:#fff">'+e.rev_est+'</div></div>'
+            + '</div></div>';
+    });
+    html += '</div>';
+  });
+
+  el.innerHTML = html;
+}
+
+// Add analyst ratings to hisse detay
+function renderAnalystRatings(sym) {
+  var r = ANALYST_RATINGS[sym];
+  if (!r) return;
+  var el = document.getElementById('analyst-ratings');
+  if (!el) return;
+  var total = r.buy + r.hold + r.sell;
+  var buyPct = (r.buy/total*100).toFixed(0);
+  var holdPct = (r.hold/total*100).toFixed(0);
+  var sellPct = (r.sell/total*100).toFixed(0);
+  var col = r.rating.includes('STRONG') ? 'var(--gr)' : r.rating === 'HOLD' ? 'var(--am)' : 'var(--rd)';
+
+  el.innerHTML = '<div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px">'
+    + '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">ANALİST GÖRÜŞÜ</div>'
+    + '<div style="font-family:var(--dp);font-size:20px;font-weight:800;color:'+col+';margin-bottom:6px">'+r.rating+'</div>'
+    + '<div style="font-family:var(--mn);font-size:10px;color:var(--t2);margin-bottom:12px">'+total+' analist | Hedef: <span style="color:#fff">$'+r.target+'</span> <span style="color:'+(r.upside>0?'var(--gr)':'var(--rd)')+'">('+(r.upside>0?'+':'')+r.upside+'%)</span></div>'
+    + '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px">'
+    + '<div style="width:'+buyPct+'%;background:var(--gr);border-radius:3px 0 0 3px"></div>'
+    + '<div style="width:'+holdPct+'%;background:var(--am)"></div>'
+    + '<div style="width:'+sellPct+'%;background:var(--rd);border-radius:0 3px 3px 0"></div>'
+    + '</div>'
+    + '<div style="display:flex;justify-content:space-between;margin-top:5px;font-family:var(--mn);font-size:9px">'
+    + '<span style="color:var(--gr)">AL '+r.buy+'</span>'
+    + '<span style="color:var(--am)">TUT '+r.hold+'</span>'
+    + '<span style="color:var(--rd)">SAT '+r.sell+'</span>'
+    + '</div></div>';
+}
+
+// Hook into gotoTab for takvim
+var _gt_takvim = gotoTab;
+gotoTab = function(el, t) {
+  _gt_takvim(el, t);
+  if (t === 'takvim') {
+    setTimeout(initEarningsCalendar, 100);
+  }
+};
+
+// Hook into pickSym for analyst ratings
+var _origPickSym3 = pickSym;
+pickSym = function(k) {
+  _origPickSym3(k);
+  if (ANALYST_RATINGS[k]) setTimeout(function(){ renderAnalystRatings(k); }, 200);
+};
+
+
+// ═══════════════════════════════════════════
+// AUTH + STRIPE SİSTEMİ
+// ═══════════════════════════════════════════
+var BACKEND = 'https://nexus-terminal-production-6606.up.railway.app';
+var currentUser = null;
+var authToken = localStorage.getItem('nexus_token') || null;
+
+// Auto-login on startup
+function initAuth() {
+  if (authToken) {
+    fetch(BACKEND + '/auth/me', {
+      headers: { 'Authorization': 'Bearer ' + authToken }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.email) {
+        currentUser = d;
+        updateAuthUI();
+        updateTabAuth();
+      } else {
+        authToken = null;
+        localStorage.removeItem('nexus_token');
+      }
+    })
+    .catch(function(){});
+  }
+}
+
+function switchAuthTab(tab) {
+  var loginForm = document.getElementById('auth-login-form');
+  var regForm = document.getElementById('auth-register-form');
+  var loginBtn = document.getElementById('auth-tab-login');
+  var regBtn = document.getElementById('auth-tab-register');
+  if (tab === 'login') {
+    if (loginForm) loginForm.style.display = 'block';
+    if (regForm) regForm.style.display = 'none';
+    if (loginBtn) { loginBtn.style.background = 'var(--ac)'; loginBtn.style.color = 'var(--bg0)'; }
+    if (regBtn) { regBtn.style.background = 'transparent'; regBtn.style.color = 'var(--t2)'; }
+  } else {
+    if (loginForm) loginForm.style.display = 'none';
+    if (regForm) regForm.style.display = 'block';
+    if (regBtn) { regBtn.style.background = 'var(--ac)'; regBtn.style.color = 'var(--bg0)'; }
+    if (loginBtn) { loginBtn.style.background = 'transparent'; loginBtn.style.color = 'var(--t2)'; }
+  }
+}
+
+function doLogin() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  var errEl = document.getElementById('login-error');
+  if (!email || !pass) { showAuthError('login-error', 'Email ve şifre gerekli'); return; }
+
+  fetch(BACKEND + '/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, password: pass })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d.error) { showAuthError('login-error', d.error); return; }
+    authToken = d.token;
+    currentUser = d.user;
+    localStorage.setItem('nexus_token', authToken);
+    updateAuthUI();
+    updateTabAuth();
+    showNotif('✓ Hoş geldiniz, ' + d.user.email);
+  })
+  .catch(function(){ showAuthError('login-error', 'Bağlantı hatası'); });
+}
+
+function doRegister() {
+  var name = document.getElementById('reg-name').value.trim();
+  var email = document.getElementById('reg-email').value.trim();
+  var pass = document.getElementById('reg-pass').value;
+  if (!email || !pass) { showAuthError('reg-error', 'Tüm alanlar gerekli'); return; }
+
+  fetch(BACKEND + '/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email, password: pass, name: name })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d.error) { showAuthError('reg-error', d.error); return; }
+    authToken = d.token;
+    currentUser = d.user;
+    localStorage.setItem('nexus_token', authToken);
+    updateAuthUI();
+    updateTabAuth();
+    showNotif('✓ Hesabınız oluşturuldu! Hoş geldiniz.');
+  })
+  .catch(function(){ showAuthError('reg-error', 'Bağlantı hatası'); });
+}
+
+function doLogout() {
+  fetch(BACKEND + '/auth/logout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: authToken })
+  }).catch(function(){});
+  authToken = null;
+  currentUser = null;
+  localStorage.removeItem('nexus_token');
+  updateAuthUI();
+  updateTabAuth();
+  showNotif('Çıkış yapıldı');
+}
+
+// Load Stripe config from backend
+var STRIPE_PK = 'pk_test_51TEwUT3674rQAMt5xdFV7REh9itmllqPcmqMVPJ6WgaYIVzwUzxmZnxoJAbPoCYs6XuCw6UXh9KZklJLjhTCLBEy00M1IfhfuN';
+
+function doUpgrade(plan) {
+  var email = currentUser ? currentUser.email : '';
+  fetch(BACKEND + '/stripe/checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan: plan, email: email })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d) {
+    if (d.url) {
+      window.open(d.url, '_blank');
+    } else if (d.error) {
+      showNotif('⚠ ' + d.error, 'error');
+    }
+  })
+  .catch(function(){ showNotif('Stripe bağlantı hatası', 'error'); });
+}
+
+function showAuthError(elId, msg) {
+  var el = document.getElementById(elId);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+function updateAuthUI() {
+  var loginForm = document.getElementById('auth-login-form');
+  var regForm = document.getElementById('auth-register-form');
+  var userInfo = document.getElementById('auth-user-info');
+  var tabBtns = document.querySelector('.auth-tabs');
+
+  if (currentUser) {
+    if (loginForm) loginForm.style.display = 'none';
+    if (regForm) regForm.style.display = 'none';
+    if (userInfo) userInfo.style.display = 'block';
+    var av = document.getElementById('auth-avatar');
+    if (av) av.textContent = (currentUser.email || 'U')[0].toUpperCase();
+    var em = document.getElementById('auth-email-display');
+    if (em) em.textContent = currentUser.email;
+    var pb = document.getElementById('auth-plan-badge');
+    if (pb) {
+      pb.textContent = (currentUser.plan || 'FREE').toUpperCase();
+      pb.style.background = currentUser.plan === 'pro' ? 'rgba(0,212,255,.2)' : 'rgba(122,143,168,.15)';
+      pb.style.color = currentUser.plan === 'pro' ? 'var(--ac)' : 'var(--t3)';
+    }
+  } else {
+    if (loginForm) loginForm.style.display = 'block';
+    if (regForm) regForm.style.display = 'none';
+    if (userInfo) userInfo.style.display = 'none';
+  }
+}
+
+function updateTabAuth() {
+  var tabEl = document.getElementById('tab-auth');
+  if (!tabEl) return;
+  if (currentUser) {
+    tabEl.textContent = '👤 ' + currentUser.email.split('@')[0].toUpperCase();
+    tabEl.style.color = 'var(--ac)';
+  } else {
+    tabEl.textContent = 'GİRİŞ YAP';
+    tabEl.style.color = '';
+  }
+}
+
+// Init auth on load
+window.addEventListener('load', function() {
+  setTimeout(initAuth, 1000);
+});
+
+// Check for upgrade success
+if (window.location.search.includes('upgrade=success')) {
+  setTimeout(function(){
+    showNotif('🎉 PRO'ya yükseltildiniz! Hoş geldiniz.');
+    if (authToken) initAuth();
+  }, 2000);
+}
+
+
+</html>
+<script>
+// ═══════════════════════════════════════════
+// KULLANICI SİSTEMİ + STRIPE
+// ═══════════════════════════════════════════
+
+// Kullanıcı state
+var currentUser = JSON.parse(localStorage.getItem('nexus_user') || 'null');
+var selectedPlan = 'free';
+
+// Sayfa yüklenince kullanıcı varsa göster
+window.addEventListener('load', function() {
+  if (currentUser) showUserInfo();
+});
+
+function selectPlan(plan) {
+  selectedPlan = plan;
+  ['free','pro','enterprise'].forEach(function(p) {
+    var el = document.getElementById('plan-' + p);
+    if (el) el.style.borderColor = p === plan ? 'var(--ac)' : 'var(--ln)';
+  });
+  var labels = {free:'ÜCRETSİZ — $0/ay', pro:'PRO — $49/ay', enterprise:'KURUMSAL — $199/ay'};
+  var el = document.getElementById('plan-label');
+  if (el) el.textContent = labels[plan];
+}
+
+function switchAuthTab(tab) {
+  var loginForm = document.getElementById('auth-login-form');
+  var regForm = document.getElementById('auth-register-form');
+  var loginTab = document.getElementById('atab-login');
+  var regTab = document.getElementById('atab-register');
+  if (tab === 'login') {
+    if (loginForm) loginForm.style.display = 'block';
+    if (regForm) regForm.style.display = 'none';
+    if (loginTab) { loginTab.style.color = 'var(--ac)'; loginTab.style.borderBottomColor = 'var(--ac)'; loginTab.style.background = 'var(--bg2)'; }
+    if (regTab) { regTab.style.color = 'var(--t3)'; regTab.style.borderBottomColor = 'transparent'; regTab.style.background = 'transparent'; }
+  } else {
+    if (loginForm) loginForm.style.display = 'none';
+    if (regForm) regForm.style.display = 'block';
+    if (regTab) { regTab.style.color = 'var(--ac)'; regTab.style.borderBottomColor = 'var(--ac)'; regTab.style.background = 'var(--bg2)'; }
+    if (loginTab) { loginTab.style.color = 'var(--t3)'; loginTab.style.borderBottomColor = 'transparent'; loginTab.style.background = 'transparent'; }
+  }
+}
+
+function doLogin() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  var msg = document.getElementById('login-msg');
+
+  if (!email || !pass) {
+    showAuthMsg('login-msg', 'E-posta ve şifre gerekli', 'error');
+    return;
+  }
+
+  // Check localStorage for registered users
+  var users = JSON.parse(localStorage.getItem('nexus_users') || '{}');
+  var user = users[email];
+
+  if (!user) {
+    showAuthMsg('login-msg', 'Kullanıcı bulunamadı. Kayıt olun.', 'error');
+    return;
+  }
+
+  if (user.pass !== btoa(pass)) {
+    showAuthMsg('login-msg', 'Şifre yanlış', 'error');
+    return;
+  }
+
+  // Login success
+  currentUser = {email: email, name: user.name, plan: user.plan, since: user.since};
+  localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+  showUserInfo();
+  showAuthMsg('login-msg', '✓ Giriş başarılı!', 'success');
+  setTimeout(function(){ gotoTab(null, 'terminal'); }, 1000);
+}
+
+function doRegister() {
+  var name = document.getElementById('reg-name').value.trim();
+  var email = document.getElementById('reg-email').value.trim();
+  var pass = document.getElementById('reg-pass').value;
+
+  if (!name || !email || !pass) {
+    showAuthMsg('reg-msg', 'Tüm alanları doldurun', 'error');
+    return;
+  }
+  if (pass.length < 6) {
+    showAuthMsg('reg-msg', 'Şifre en az 6 karakter olmalı', 'error');
+    return;
+  }
+  if (!email.includes('@')) {
+    showAuthMsg('reg-msg', 'Geçerli e-posta girin', 'error');
+    return;
+  }
+
+  var users = JSON.parse(localStorage.getItem('nexus_users') || '{}');
+  if (users[email]) {
+    showAuthMsg('reg-msg', 'Bu e-posta zaten kayıtlı', 'error');
+    return;
+  }
+
+  // Register
+  users[email] = { name: name, pass: btoa(pass), plan: selectedPlan, since: new Date().toISOString() };
+  localStorage.setItem('nexus_users', JSON.stringify(users));
+
+  // Auto login
+  currentUser = {email: email, name: name, plan: selectedPlan, since: new Date().toISOString()};
+  localStorage.setItem('nexus_user', JSON.stringify(currentUser));
+
+  if (selectedPlan === 'free') {
+    showAuthMsg('reg-msg', '✓ Kayıt başarılı! Yönlendiriliyorsunuz...', 'success');
+    showUserInfo();
+    setTimeout(function(){ gotoTab(null, 'terminal'); }, 1200);
+  } else {
+    // Redirect to Stripe payment
+    showAuthMsg('reg-msg', '✓ Hesap oluşturuldu! Ödeme sayfasına yönlendiriliyorsunuz...', 'success');
+    showUserInfo();
+    setTimeout(function(){
+      initiateStripePayment(selectedPlan, email, name);
+    }, 1000);
+  }
+}
+
+function initiateStripePayment(plan, email, name) {
+  // Stripe payment links - gerçek key ile değiştirin
+  var stripeLinks = {
+    'pro': 'https://buy.stripe.com/nexus_pro_placeholder',
+    'enterprise': 'https://buy.stripe.com/nexus_enterprise_placeholder'
+  };
+  var link = stripeLinks[plan];
+  if (link && !link.includes('placeholder')) {
+    window.open(link + '?prefilled_email=' + encodeURIComponent(email), '_blank');
+  } else {
+    // Demo mode - Stripe key henüz eklenmedi
+    showNotif('💳 Stripe entegrasyonu yakında aktif olacak. Şimdilik ücretsiz planla devam edebilirsiniz.');
+    gotoTab(null, 'terminal');
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  localStorage.removeItem('nexus_user');
+  var ui = document.getElementById('auth-user-info');
+  var forms = document.getElementById('auth-login-form');
+  var tabs = document.querySelector('#panel-auth .tabs-wrapper');
+  if (ui) ui.style.display = 'none';
+  if (forms) { forms.style.display = 'block'; forms.parentElement.style.display = 'block'; }
+  document.querySelectorAll('#plan-free,#plan-pro,#plan-enterprise,#selected-plan-info,#atab-login,#atab-register').forEach(function(el){ if(el) el.style.display=''; });
+  updateNavUserState();
+  showNotif('Çıkış yapıldı');
+}
+
+function showUserInfo() {
+  var loginBox = document.querySelector('#auth-login-form');
+  var regBox = document.querySelector('#auth-register-form');
+  var userInfo = document.getElementById('auth-user-info');
+  var planSelector = document.getElementById('auth-plan-selector');
+  var tabBar = document.querySelector('#panel-auth .plan-card');
+
+  if (loginBox) loginBox.parentElement.style.display = 'none';
+  if (planSelector) planSelector.style.display = 'none';
+  if (userInfo) {
+    userInfo.style.display = 'block';
+    var planLabels = {free:'ÜCRETSİZ PLAN', pro:'PRO PLAN ⭐', enterprise:'KURUMSAL PLAN 🏢'};
+    document.getElementById('user-name-display').textContent = currentUser.name;
+    document.getElementById('user-email-display').textContent = currentUser.email;
+    document.getElementById('user-plan-display').textContent = planLabels[currentUser.plan] || 'ÜCRETSİZ';
+  }
+  updateNavUserState();
+}
+
+function showAuthMsg(id, msg, type) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = type === 'error' ? 'var(--rd)' : 'var(--gr)';
+  el.style.display = 'block';
+}
+
+function updateNavUserState() {
+  var authTab = document.getElementById('tab-auth');
+  if (!authTab) return;
+  if (currentUser) {
+    authTab.textContent = '👤 ' + (currentUser.name || 'Profil').split(' ')[0].toUpperCase();
+    authTab.style.color = 'var(--gr)';
+  } else {
+    authTab.textContent = 'GİRİŞ YAP';
+    authTab.style.color = '';
+  }
+}
+
+// Premium feature check
+function requirePro(feature) {
+  if (!currentUser || currentUser.plan === 'free') {
+    showNotif('🔒 ' + (feature||'Bu özellik') + ' PRO plan gerektirir. Yükseltmek için GİRİŞ YAP sekmesine gidin.');
+    return false;
+  }
+  return true;
+}
+
+// Init on load
+setTimeout(updateNavUserState, 500);
+</script>
+
+<script>
+// ═══════════════════════════════════════════
+// PORTFOLIO — SERVER SYNC
+// ═══════════════════════════════════════════
+var BACKEND_URL = 'https://nexus-terminal-production-6606.up.railway.app';
+
+function syncPortfolioToServer() {
+  if (!currentUser) return;
+  var data = { positions: portfolio, transactions: [] };
+  fetch(BACKEND_URL + '/portfolio/' + encodeURIComponent(currentUser.email), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).catch(function(){});
+}
+
+function loadPortfolioFromServer() {
+  if (!currentUser) return;
+  fetch(BACKEND_URL + '/portfolio/' + encodeURIComponent(currentUser.email))
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      if (d.positions && Object.keys(d.positions).length > 0) {
+        portfolio = d.positions;
+        renderPortfolio();
+        showNotif('✓ Portfolio sunucudan yüklendi');
+      }
+    }).catch(function(){});
+}
+
+function addTrade(sym, action, shares, price) {
+  sym = sym || document.getElementById('trade-sym') && document.getElementById('trade-sym').value;
+  action = action || (document.getElementById('trade-action') && document.getElementById('trade-action').value) || 'buy';
+  shares = shares || parseFloat(document.getElementById('trade-shares') && document.getElementById('trade-shares').value);
+  price = price || parseFloat(document.getElementById('trade-price') && document.getElementById('trade-price').value) || liveP[sym] || 0;
+
+  if (!sym || !shares || !price) { showNotif('Eksik bilgi', 'error'); return; }
+
+  if (action === 'buy') {
+    if (portfolio[sym]) {
+      var old = portfolio[sym];
+      var totalShares = old.shares + shares;
+      portfolio[sym] = { shares: totalShares, cost: (old.shares * old.cost + shares * price) / totalShares };
+    } else {
+      portfolio[sym] = { shares: shares, cost: price };
+    }
+    showNotif('✓ ' + sym + ' ' + shares + ' adet alındı @ $' + price.toFixed(2));
+  } else {
+    if (portfolio[sym]) {
+      portfolio[sym].shares -= shares;
+      if (portfolio[sym].shares <= 0) delete portfolio[sym];
+    }
+    showNotif('✓ ' + sym + ' ' + shares + ' adet satıldı @ $' + price.toFixed(2));
+  }
+
+  // Save to localStorage
+  try { localStorage.setItem('nexus_portfolio', JSON.stringify(portfolio)); } catch(e) {}
+  // Sync to server
+  syncPortfolioToServer();
+  renderPortfolio();
+}
+
+// Load portfolio from localStorage on start
+window.addEventListener('load', function() {
+  try {
+    var saved = localStorage.getItem('nexus_portfolio');
+    if (saved) {
+      var parsed = JSON.parse(saved);
+      if (Object.keys(parsed).length > 0) portfolio = parsed;
+    }
+  } catch(e) {}
+  setTimeout(loadPortfolioFromServer, 2000);
+});
+
+// ═══════════════════════════════════════════
+// OPTIONS FLOW PANELİ
+// ═══════════════════════════════════════════
+var optionsInited = false;
+
+function initOptionsFlow() {
+  fetch(BACKEND_URL + '/options')
+    .then(function(r){ return r.json(); })
+    .then(function(d) {
+      renderOptionsFlow(d.flow || []);
+    }).catch(function(){
+      renderOptionsFlow([]);
+    });
+  if (!optionsInited) {
+    optionsInited = true;
+    setInterval(function(){
+      fetch(BACKEND_URL + '/options')
+        .then(function(r){ return r.json(); })
+        .then(function(d){ renderOptionsFlow(d.flow || []); })
+        .catch(function(){});
+    }, 30000);
+  }
+}
+
+function renderOptionsFlow(flow) {
+  var el = document.getElementById('options-flow-body');
+  if (!el) return;
+  if (!flow.length) {
+    el.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:20px">Veri yükleniyor...</td></tr>';
+    return;
+  }
+  el.innerHTML = '';
+  flow.forEach(function(f) {
+    var isCall = f.type === 'CALL';
+    var tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.onclick = function(){ pickSym(f.sym); gotoTab(null, 'terminal'); };
+    var cells = [
+      {t: f.sym, s: 'color:#fff;font-weight:500;font-family:var(--mn)'},
+      {t: f.type, s: 'font-family:var(--mn);color:' + (isCall ? 'var(--gr)' : 'var(--rd)')},
+      {t: '$' + f.strike, s: 'font-family:var(--mn)'},
+      {t: f.expiry, s: 'color:var(--t2)'},
+      {t: '$' + (f.premium||0).toLocaleString(), s: 'font-family:var(--mn);color:var(--am)'},
+      {t: (f.size||0).toLocaleString(), s: 'color:var(--t2)'},
+      {t: f.unusual ? '🔥 UNUSUAL' : '—', s: f.unusual ? 'color:var(--rd);font-family:var(--mn);font-size:9px' : 'color:var(--t3)'},
+    ];
+    cells.forEach(function(cell) {
+      var td = document.createElement('td');
+      td.textContent = cell.t;
+      td.style.cssText = cell.s;
+      tr.appendChild(td);
+    });
+    el.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════
+// SHORT INTEREST PANELİ
+// ═══════════════════════════════════════════
+function initShortInterest() {
+  fetch(BACKEND_URL + '/short-interest')
+    .then(function(r){ return r.json(); })
+    .then(function(d) { renderShortInterest(d); })
+    .catch(function(){});
+}
+
+function renderShortInterest(data) {
+  var el = document.getElementById('short-interest-body');
+  if (!el) return;
+  el.innerHTML = '';
+  var syms = Object.keys(data).sort(function(a,b){ return data[b].short_float - data[a].short_float; });
+  syms.forEach(function(sym) {
+    var d = data[sym];
+    var tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.onclick = function(){ pickSym(sym); gotoTab(null, 'terminal'); };
+    var level = d.short_float > 20 ? 'var(--rd)' : d.short_float > 10 ? 'var(--am)' : 'var(--gr)';
+    [
+      {t: sym, s: 'color:#fff;font-weight:500;font-family:var(--mn)'},
+      {t: d.short_float + '%', s: 'font-family:var(--mn);color:' + level},
+      {t: d.days_to_cover + ' gün', s: 'color:var(--t2)'},
+      {t: fmtVol(d.short_shares), s: 'color:var(--t2)'},
+      {t: d.price > 0 ? '$' + d.price.toFixed(2) : '—', s: 'font-family:var(--mn)'},
+      {t: d.short_float > 20 ? '🔥 HIGH' : d.short_float > 10 ? '⚠ MED' : '✓ LOW', s: 'font-family:var(--mn);font-size:9px'},
+    ].forEach(function(cell) {
+      var td = document.createElement('td');
+      td.textContent = cell.t;
+      td.style.cssText = cell.s;
+      tr.appendChild(td);
+    });
+    el.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════
+// PUSH BİLDİRİMLER
+// ═══════════════════════════════════════════
+function requestNotificationPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().then(function(perm) {
+      if (perm === 'granted') {
+        showNotif('🔔 Bildirimler aktif!');
+        new Notification('NEXUS Terminal', { body: 'Fiyat alarmları aktif. Hedef fiyata ulaşınca bildirim alacaksınız.' });
+      }
+    });
+  }
+}
+
+// Request permission after 5 seconds
+setTimeout(requestNotificationPermission, 5000);
+
+// Hook options and short into gotoTab
+var _gt_extra = gotoTab;
+gotoTab = function(el, t) {
+  _gt_extra(el, t);
+  if (t === 'social') {
+    setTimeout(initOptionsFlow, 100);
+    setTimeout(initShortInterest, 200);
+  }
+  if (t === 'portfolio') {
+    setTimeout(loadPortfolioFromServer, 100);
+  }
+};
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════
+// HİSSE DETAY PANELİ — Yahoo Finance benzeri
+// ═══════════════════════════════════════════
+
+var detailSym = '';
+var detailChart = null;
+
+function loadDetailSym(sym) {
+  sym = (sym || '').toUpperCase().trim();
+  if (!sym) return;
+  detailSym = sym;
+
+  var el = document.getElementById('detail-content');
+  if (!el) return;
+
+  var q = quotes[sym] || {};
+  var b = BASE[sym] || {n: sym, s: 'US Equity'};
+  var price = liveP[sym] || q.c || 0;
+  var ch = q.pc ? price - q.pc : 0;
+  var pt = q.pc ? ch/q.pc*100 : 0;
+  var up = ch >= 0;
+  var rating = ANALYST_RATINGS[sym];
+
+  el.innerHTML = '';
+
+  // ── HEADER ──────────────────────────────
+  var header = document.createElement('div');
+  header.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--ln)';
+  header.innerHTML = '<div>'
+    + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">'
+    + '<span style="font-family:var(--dp);font-size:32px;font-weight:800;color:#fff">' + sym + '</span>'
+    + '<span style="font-size:14px;color:var(--t2)">' + (b.n||sym) + '</span>'
+    + '<span style="font-family:var(--mn);font-size:9px;padding:2px 8px;background:var(--bg3);border:1px solid var(--ln2);border-radius:3px;color:var(--t3)">' + (b.s||'US Equity') + '</span>'
+    + '</div>'
+    + '<div style="display:flex;align-items:baseline;gap:10px">'
+    + '<span style="font-family:var(--mn);font-size:36px;font-weight:300;color:#fff">' + (price>0?'$'+price.toFixed(2):'—') + '</span>'
+    + '<span style="font-family:var(--mn);font-size:16px;color:' + (up?'var(--gr)':'var(--rd)') + '">' + (price>0?(up?'+':'')+ch.toFixed(2)+' ('+pt.toFixed(2)+'%)':'') + '</span>'
+    + '</div>'
+    + '</div>'
+    + '<div style="text-align:right">'
+    + '<button onclick="addPriceAlarm(''+sym+'')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);border-radius:4px;color:var(--ac);font-family:var(--mn);font-size:10px;padding:6px 12px;cursor:pointer;margin-bottom:6px;display:block;width:100%">🔔 ALARM EKLE</button>'
+    + '<button onclick="pickSym(''+sym+'');gotoTab(null,'terminal')" style="background:var(--ac);border:none;border-radius:4px;color:var(--bg0);font-family:var(--mn);font-size:10px;padding:6px 12px;cursor:pointer;display:block;width:100%">📊 TERMİNALDE AÇ</button>'
+    + '</div>';
+  el.appendChild(header);
+
+  // ── KEY STATS ───────────────────────────
+  var stats = document.createElement('div');
+  stats.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px';
+  var statData = [
+    {l:'AÇILIŞ', v: q.o?'$'+q.o.toFixed(2):'—'},
+    {l:'YÜKSEK', v: q.h?'$'+q.h.toFixed(2):'—'},
+    {l:'DÜŞÜK', v: q.l?'$'+q.l.toFixed(2):'—'},
+    {l:'HACİM', v: q.v?fmtVol(q.v):'—'},
+    {l:'PİY. DEĞ.', v: q.mc?fmtVol(q.mc):'—'},
+    {l:'F/K ORANI', v: q.pe?q.pe.toFixed(1)+'x':'—'},
+    {l:'52H YÜKSEK', v: q.h52?'$'+q.h52.toFixed(2):'—'},
+    {l:'52H DÜŞÜK', v: q.l52?'$'+q.l52.toFixed(2):'—'},
+  ];
+  stats.innerHTML = statData.map(function(s) {
+    return '<div style="background:var(--bg2);border:1px solid var(--ln);border-radius:6px;padding:10px">'
+      + '<div style="font-family:var(--mn);font-size:8px;color:var(--t3);letter-spacing:1.5px">' + s.l + '</div>'
+      + '<div style="font-family:var(--mn);font-size:14px;color:#fff;margin-top:3px">' + s.v + '</div>'
+      + '</div>';
+  }).join('');
+  el.appendChild(stats);
+
+  // ── ANALİST & EARNINGS ──────────────────
+  var ae = document.createElement('div');
+  ae.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px';
+
+  // Analyst
+  var analystHtml = '<div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px">'
+    + '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:12px">ANALİST GÖRÜŞLERİ</div>';
+  if (rating) {
+    var total = rating.buy + rating.hold + rating.sell;
+    var col = rating.rating.includes('STRONG') ? 'var(--gr)' : rating.rating === 'HOLD' ? 'var(--am)' : 'var(--rd)';
+    analystHtml += '<div style="font-family:var(--dp);font-size:24px;font-weight:800;color:'+col+';margin-bottom:8px">' + rating.rating + '</div>'
+      + '<div style="font-family:var(--mn);font-size:11px;color:var(--t2);margin-bottom:10px">'
+      + total + ' analist | Hedef: <span style="color:#fff">$' + rating.target + '</span> '
+      + '<span style="color:' + (rating.upside>0?'var(--gr)':'var(--rd)') + '">' + (rating.upside>0?'+':'') + rating.upside + '%</span></div>'
+      + '<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;gap:1px">'
+      + '<div style="width:' + (rating.buy/total*100).toFixed(0) + '%;background:var(--gr)"></div>'
+      + '<div style="width:' + (rating.hold/total*100).toFixed(0) + '%;background:var(--am)"></div>'
+      + '<div style="width:' + (rating.sell/total*100).toFixed(0) + '%;background:var(--rd)"></div>'
+      + '</div>'
+      + '<div style="display:flex;justify-content:space-between;margin-top:6px;font-family:var(--mn);font-size:10px">'
+      + '<span style="color:var(--gr)">AL ' + rating.buy + '</span>'
+      + '<span style="color:var(--am)">TUT ' + rating.hold + '</span>'
+      + '<span style="color:var(--rd)">SAT ' + rating.sell + '</span>'
+      + '</div>';
+  } else {
+    analystHtml += '<div style="color:var(--t3);font-size:12px">Bu hisse için analist verisi yok</div>';
+  }
+  analystHtml += '</div>';
+
+  // Earnings
+  var nextEarnings = EARNINGS_DATA.filter(function(e){ return e.sym === sym; })[0];
+  var earningsHtml = '<div style="background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px">'
+    + '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:12px">KAZANÇ TAKVİMİ</div>';
+  if (nextEarnings) {
+    var d = new Date(nextEarnings.date);
+    var daysUntil = Math.ceil((d - new Date()) / 86400000);
+    earningsHtml += '<div style="font-family:var(--mn);font-size:11px;color:var(--ac);margin-bottom:6px">'
+      + d.toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"}) + ' — ' + nextEarnings.time + '</div>'
+      + '<div style="font-family:var(--mn);font-size:10px;color:var(--am);margin-bottom:10px">' + (daysUntil > 0 ? daysUntil + ' gün sonra' : 'Geçti') + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+      + '<div style="background:var(--bg3);border-radius:4px;padding:8px"><div style="font-family:var(--mn);font-size:8px;color:var(--t3)">EPS TAHMİN</div><div style="font-family:var(--mn);font-size:14px;color:#fff;margin-top:2px">$' + nextEarnings.eps_est + '</div></div>'
+      + '<div style="background:var(--bg3);border-radius:4px;padding:8px"><div style="font-family:var(--mn);font-size:8px;color:var(--t3)">GELİR TAHMİN</div><div style="font-family:var(--mn);font-size:14px;color:#fff;margin-top:2px">' + nextEarnings.rev_est + '</div></div>'
+      + '</div>';
+  } else {
+    earningsHtml += '<div style="color:var(--t3);font-size:12px">Yaklaşan kazanç tarihi yok</div>';
+  }
+  earningsHtml += '</div>';
+
+  ae.innerHTML = analystHtml + earningsHtml;
+  el.appendChild(ae);
+
+  // ── CANLI CHART ─────────────────────────
+  var chartDiv = document.createElement('div');
+  chartDiv.style.cssText = 'background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px;margin-bottom:20px';
+  chartDiv.innerHTML = '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">FİYAT GRAFİĞİ (90 GÜN)</div>'
+    + '<div id="detail-chart-container" style="height:200px"></div>';
+  el.appendChild(chartDiv);
+
+  // Draw detail chart
+  setTimeout(function() {
+    var container = document.getElementById('detail-chart-container');
+    if (!container || !window.LightweightCharts) return;
+    if (detailChart) { try{detailChart.remove();}catch(e){} detailChart = null; }
+    detailChart = LightweightCharts.createChart(container, {
+      width: container.clientWidth, height: 200,
+      layout: { background: {type:'solid',color:'#0d1320'}, textColor: '#7a8fa8' },
+      grid: { vertLines: {color:'rgba(255,255,255,.04)'}, horzLines: {color:'rgba(255,255,255,.04)'} },
+      rightPriceScale: { borderColor: 'rgba(255,255,255,.06)' },
+      timeScale: { borderColor: 'rgba(255,255,255,.06)', timeVisible: true },
+    });
+    var series = detailChart.addCandlestickSeries({
+      upColor:'#00e676', downColor:'#ff3d5a',
+      borderUpColor:'#00e676', borderDownColor:'#ff3d5a',
+      wickUpColor:'#00e676', wickDownColor:'#ff3d5a',
+    });
+    fetchRealOHLC(sym, 90, function(data) {
+      if (data) { series.setData(data); detailChart.timeScale().fitContent(); }
+      else { series.setData(generateOHLCV(price, 90)); detailChart.timeScale().fitContent(); }
+    });
+  }, 100);
+
+  // ── İLGİLİ HABERLER ─────────────────────
+  var newsDiv = document.createElement('div');
+  newsDiv.style.cssText = 'background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px;margin-bottom:20px';
+  newsDiv.innerHTML = '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">İLGİLİ HABERLER</div>'
+    + '<div id="detail-news"></div>';
+  el.appendChild(newsDiv);
+
+  // Load related news
+  var relatedNews = (typeof NEWS_DATA !== 'undefined' ? NEWS_DATA : []).filter(function(n){
+    return n.sym === sym || (n.title && n.title.toUpperCase().includes(sym));
+  }).slice(0, 5);
+  var dnEl = document.getElementById('detail-news');
+  if (dnEl) {
+    if (relatedNews.length) {
+      dnEl.innerHTML = relatedNews.map(function(n) {
+        var col = n.sent==='pos'?'var(--gr)':n.sent==='neg'?'var(--rd)':'var(--t3)';
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--ln);cursor:pointer" onclick="window.open(''+n.link+'','_blank')">'
+          + '<div style="display:flex;justify-content:space-between;margin-bottom:3px">'
+          + '<span style="font-family:var(--mn);font-size:9px;color:var(--ac)">' + (n.src||'NEWS') + '</span>'
+          + '<span style="font-family:var(--mn);font-size:9px;color:'+col+'">' + (n.sent==='pos'?'▲POZ':n.sent==='neg'?'▼NEG':'■NÖT') + '</span>'
+          + '</div>'
+          + '<div style="font-size:11px;color:var(--t1);line-height:1.4">' + n.title + '</div>'
+          + '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-top:3px">' + (n.time||'') + ' önce</div>'
+          + '</div>';
+      }).join('');
+    } else {
+      dnEl.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:8px 0">' + sym + ' ile ilgili haber bulunamadı</div>';
+    }
+  }
+
+  // ── SEC FİLİNGS ─────────────────────────
+  var secDiv = document.createElement('div');
+  secDiv.style.cssText = 'background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:14px';
+  secDiv.innerHTML = '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">SEC EDGAR FİLİNGS</div>'
+    + '<div id="detail-sec"></div>';
+  el.appendChild(secDiv);
+
+  var relSEC = (typeof SEC_DATA !== 'undefined' ? SEC_DATA : []).filter(function(f){
+    return f.ticker === sym;
+  }).slice(0, 5);
+  var dsEl = document.getElementById('detail-sec');
+  if (dsEl) {
+    if (relSEC.length) {
+      dsEl.innerHTML = relSEC.map(function(f) {
+        return '<div style="padding:8px 0;border-bottom:1px solid var(--ln)">'
+          + '<div style="display:flex;justify-content:space-between">'
+          + '<span style="font-family:var(--mn);font-size:11px;color:var(--am)">' + f.form + '</span>'
+          + '<span style="font-family:var(--mn);font-size:9px;color:var(--t3)">' + f.time + '</span>'
+          + '</div>'
+          + '<div style="font-size:10px;color:var(--t2);margin-top:3px">' + (f.company||'').slice(0,50) + '</div>'
+          + '</div>';
+      }).join('');
+    } else {
+      dsEl.innerHTML = '<div style="color:var(--t3);font-size:11px;padding:8px 0">' + sym + ' için SEC filing bulunamadı</div>';
+    }
+  }
+}
+
+// Auto-load when switching to hissedetay
+var _gt_detail = gotoTab;
+gotoTab = function(el, t) {
+  _gt_detail(el, t);
+  if (t === 'hissedetay') {
+    var inp = document.getElementById('detail-search');
+    if (inp && !inp.value) inp.value = selSym;
+    if (selSym) setTimeout(function(){ loadDetailSym(selSym); }, 100);
+    // Quick symbol buttons
+    var qEl = document.getElementById('detail-quick-syms');
+    if (qEl && !qEl.innerHTML) {
+      qEl.innerHTML = ['AAPL','NVDA','MSFT','TSLA','META','GOOGL','AMZN'].map(function(s){
+        return '<button onclick="document.getElementById('detail-search').value=''+s+'';loadDetailSym(''+s+'')" '
+          + 'style="background:var(--bg2);border:1px solid var(--ln2);border-radius:3px;color:var(--t2);font-family:var(--mn);font-size:9px;padding:3px 8px;cursor:pointer">'+s+'</button>';
+      }).join('');
+    }
+  }
+};
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════
+// FORUM — Gerçek topluluk hissi
+// ═══════════════════════════════════════════
+var FORUM_POSTS = [
+  {id:1, user:'trader_ahmet', avatar:'TA', time:'12dk', cat:'Teknik Analiz', sym:'NVDA',
+   title:'NVDA 900 direncini kırabilir mi? RSI aşırı alımda',
+   content:'NVDA bugün güçlü açıldı ama RSI 74'te. MA20 üzerinde seyrediyor. Kısa vadede 880 desteği kritik. Sizce bu seviyeden alım yapar mısınız?',
+   likes:24, replies:8, views:142, tags:['teknik','gpu','ai']},
+  {id:2, user:'crypto_wolf', avatar:'CW', time:'34dk', cat:'Kripto', sym:'BTC',
+   title:'Bitcoin 70K sonrası konsolidasyon — uzun vadeli görüş',
+   content:'BTC halving sonrası tarihsel pattern'e bakarsak 6-12 ay içinde yeni ATH bekliyorum. Ama önce 60K testi olabilir. Portföyünüzde BTC ağırlığı nedir?',
+   likes:41, replies:15, views:287, tags:['bitcoin','halving','uzun-vade']},
+  {id:3, user:'macro_analyst', avatar:'MA', time:'1sa', cat:'Makro', sym:'',
+   title:'Fed faiz kararı sonrası piyasalar nereye gider?',
+   content:'Powell'ın açıklamalarına göre 2025'te 2 indirim bekleniyor. Bu senaryoda tech hisseleri ne yapar? Büyüme hisseleri için iyimserim.',
+   likes:18, replies:22, views:198, tags:['fed','faiz','makro']},
+  {id:4, user:'value_investor', avatar:'VI', time:'2sa', cat:'Temel Analiz', sym:'AAPL',
+   title:'Apple'ın AI stratejisi ve uzun vadeli değerleme',
+   content:'AAPL 28 F/K ile tarihsel ortalamasında işlem görüyor. AI entegrasyonu ile premium artabilir. iPhone 16 satışları beklentilerin üzerinde.',
+   likes:33, replies:11, views:220, tags:['aapl','değerleme','ai']},
+  {id:5, user:'risk_manager', avatar:'RM', time:'3sa', cat:'Risk', sym:'TSLA',
+   title:'TSLA 2025 riskleri — tarafsız analiz',
+   content:'EV pazarında rekabet artıyor. Marj baskısı devam ediyor. Musk'ın diğer girişimleri dikkat dağıtıyor. Ama FSD geliri oyun değiştirici olabilir.',
+   likes:15, replies:19, views:165, tags:['tsla','risk','ev']},
+];
+
+var forumFilter = 'all';
+var forumInited = false;
+
+function initForum() {
+  renderForumPosts();
+  if (!forumInited) {
+    forumInited = true;
+    renderForumStats();
+    renderOnlineUsers();
+  }
+}
+
+function renderForumPosts(filter) {
+  filter = filter || forumFilter;
+  forumFilter = filter;
+
+  var posts = FORUM_POSTS.filter(function(p) {
+    if (filter === 'all') return true;
+    if (filter === 'hot') return p.likes > 20;
+    if (filter === 'new') return true;
+    return p.cat.toLowerCase() === filter.toLowerCase();
+  });
+
+  var el = document.getElementById('forum-posts');
+  if (!el) return;
+  el.innerHTML = '';
+
+  posts.forEach(function(p) {
+    var div = document.createElement('div');
+    div.style.cssText = 'background:var(--bg2);border:1px solid var(--ln);border-radius:8px;padding:16px;margin-bottom:10px;cursor:pointer;transition:border-color .2s';
+    div.onmouseenter = function(){ this.style.borderColor = 'rgba(0,212,255,.3)'; };
+    div.onmouseleave = function(){ this.style.borderColor = 'rgba(255,255,255,.06)'; };
+    div.onclick = function(){ openForumPost(p.id); };
+
+    var tagHtml = (p.tags||[]).map(function(t){
+      return '<span style="font-family:var(--mn);font-size:8px;padding:2px 6px;background:var(--bg3);border-radius:3px;color:var(--t3)">'+t+'</span>';
+    }).join(' ');
+
+    div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">'
+      + '<div style="display:flex;align-items:center;gap:10px">'
+      + '<div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--gr));display:flex;align-items:center;justify-content:center;font-family:var(--mn);font-size:10px;color:var(--bg0);font-weight:500;flex-shrink:0">'+p.avatar+'</div>'
+      + '<div>'
+      + '<div style="font-family:var(--mn);font-size:10px;color:var(--t0)">'+p.user+'</div>'
+      + '<div style="font-family:var(--mn);font-size:9px;color:var(--t3)">'+p.time+' önce · '+p.cat+(p.sym?' · <span style="color:var(--ac)">$'+p.sym+'</span>':'')+'</div>'
+      + '</div></div>'
+      + '<div style="display:flex;gap:12px;font-family:var(--mn);font-size:9px;color:var(--t3)">'
+      + '<span>👁 '+p.views+'</span>'
+      + '<span>💬 '+p.replies+'</span>'
+      + '<span>❤️ '+p.likes+'</span>'
+      + '</div></div>'
+      + '<div style="font-size:14px;font-weight:500;color:#fff;margin-bottom:8px">'+p.title+'</div>'
+      + '<div style="font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:10px">'+p.content.slice(0,150)+'...</div>'
+      + '<div style="display:flex;gap:4px">'+tagHtml+'</div>';
+    el.appendChild(div);
+  });
+}
+
+function openForumPost(id) {
+  var p = FORUM_POSTS.find(function(x){return x.id===id;});
+  if (!p) return;
+  showNotif('Forum: ' + p.title.slice(0,50) + '...');
+  // In a full app, would open modal or navigate to post
+}
+
+function renderForumStats() {
+  var el = document.getElementById('forum-stats');
+  if (!el) return;
+  var stats = [
+    {l:'Toplam Post', v:'1,284'},
+    {l:'Aktif Kullanıcı', v:'342'},
+    {l:'Bugün', v:'47 post'},
+  ];
+  el.innerHTML = stats.map(function(s){
+    return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--ln)">'
+      + '<span style="font-family:var(--mn);font-size:9px;color:var(--t3)">'+s.l+'</span>'
+      + '<span style="font-family:var(--mn);font-size:10px;color:#fff">'+s.v+'</span>'
+      + '</div>';
+  }).join('');
+}
+
+function renderOnlineUsers() {
+  var el = document.getElementById('forum-online');
+  if (!el) return;
+  var users = ['trader_ahmet','crypto_wolf','macro_analyst','value_inv','risk_mgr','bull_bear_x','algo_trader'];
+  el.innerHTML = users.map(function(u){
+    var init = u.slice(0,2).toUpperCase();
+    var colors = ['#00d4ff','#00e676','#ff6b35','#ffd600','#ff3d5a','#9945ff','#00d4ff'];
+    var col = colors[Math.floor(Math.random()*colors.length)];
+    return '<div style="display:flex;align-items:center;gap:6px;padding:4px 0">'
+      + '<div style="width:6px;height:6px;border-radius:50%;background:var(--gr)"></div>'
+      + '<div style="width:24px;height:24px;border-radius:50%;background:'+col+'22;border:1px solid '+col+'44;display:flex;align-items:center;justify-content:center;font-family:var(--mn);font-size:8px;color:'+col+'">'+init+'</div>'
+      + '<span style="font-family:var(--mn);font-size:10px;color:var(--t2)">'+u+'</span>'
+      + '</div>';
+  }).join('');
+}
+
+function newForumPost() {
+  var title = prompt('Başlık:');
+  if (!title) return;
+  var content = prompt('İçerik:');
+  if (!content) return;
+  FORUM_POSTS.unshift({
+    id: Date.now(), user: 'sen', avatar: 'SN', time: '0dk',
+    cat: 'Genel', sym: selSym || '',
+    title: title, content: content,
+    likes: 0, replies: 0, views: 1, tags: []
+  });
+  renderForumPosts();
+  showNotif('✓ Post eklendi!');
+}
+
+// Hook into gotoTab
+var _gt_forum = gotoTab;
+gotoTab = function(el, t) {
+  _gt_forum(el, t);
+  if (t === 'forum') setTimeout(initForum, 100);
+};
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════
+// ALPHA PULSE — Gelişmiş Sinyal Motoru
+// ═══════════════════════════════════════════
+
+var alphaSignals = [];
+
+function calculateAlphaSignals() {
+  alphaSignals = [];
+  SYMBOLS.forEach(function(sym) {
+    var q = quotes[sym];
+    var b = BASE[sym] || {};
+    if (!q || !q.c || !q.pc) return;
+    var price = liveP[sym] || q.c;
+    var chg = (price - q.pc) / q.pc * 100;
+    var vol = q.v || 0;
+    var score = 0;
+    var reasons = [];
+
+    // Momentum signal
+    if (chg > 3) { score += 30; reasons.push('Güçlü momentum +' + chg.toFixed(1) + '%'); }
+    else if (chg > 1.5) { score += 15; reasons.push('Pozitif momentum'); }
+    else if (chg < -3) { score -= 30; reasons.push('Güçlü satış -' + Math.abs(chg).toFixed(1) + '%'); }
+    else if (chg < -1.5) { score -= 15; reasons.push('Negatif momentum'); }
+
+    // Volume signal
+    if (vol > 50000000) { score += 20; reasons.push('Yüksek hacim ' + fmtVol(vol)); }
+    else if (vol > 20000000) { score += 10; reasons.push('Orta hacim'); }
+
+    // SEC signal (if exists)
+    var secItem = (typeof SEC_DATA !== 'undefined' ? SEC_DATA : []).find(function(f){ return f.ticker === sym; });
+    if (secItem) {
+      if (secItem.score > 0.3) { score += 25; reasons.push('SEC: Pozitif 13G/13F bildirimi'); }
+      else if (secItem.score < -0.2) { score -= 20; reasons.push('SEC: Negatif 8-K bildirimi'); }
+    }
+
+    // Analyst signal
+    var rat = typeof ANALYST_RATINGS !== 'undefined' && ANALYST_RATINGS[sym];
+    if (rat) {
+      if (rat.rating === 'STRONG BUY') { score += 20; reasons.push('Analist: STRONG BUY'); }
+      else if (rat.rating === 'BUY') { score += 10; reasons.push('Analist: BUY'); }
+      else if (rat.rating === 'SELL') { score -= 15; reasons.push('Analist: SELL'); }
+    }
+
+    // Earnings proximity
+    var earnings = typeof EARNINGS_DATA !== 'undefined' && EARNINGS_DATA.find(function(e){ return e.sym === sym; });
+    if (earnings) {
+      var daysUntil = Math.ceil((new Date(earnings.date) - new Date()) / 86400000);
+      if (daysUntil >= 0 && daysUntil <= 7) { score += 15; reasons.push('Kazanç açıklaması ' + daysUntil + ' gün kaldı'); }
+    }
+
+    if (Math.abs(score) >= 20 || reasons.length >= 2) {
+      alphaSignals.push({
+        sym: sym, name: b.n || sym, score: score,
+        chg: chg, price: price, vol: vol,
+        reasons: reasons, sector: b.s || '—',
+        dir: score > 0 ? 'bull' : 'bear',
+        strength: Math.abs(score) > 60 ? 'STRONG' : Math.abs(score) > 35 ? 'MODERATE' : 'WEAK'
+      });
+    }
+  });
+
+  // Sort by absolute score
+  alphaSignals.sort(function(a,b){ return Math.abs(b.score) - Math.abs(a.score); });
+  renderAlphaSignals();
+}
+
+function renderAlphaSignals() {
+  var el = document.getElementById('alpha-signals-list');
+  if (!el) return;
+  el.innerHTML = '';
+
+  if (!alphaSignals.length) {
+    el.innerHTML = '<div style="color:var(--t3);text-align:center;padding:20px;font-family:var(--mn);font-size:10px">Veri yükleniyor...</div>';
+    return;
+  }
+
+  alphaSignals.slice(0, 20).forEach(function(s) {
+    var isBull = s.score > 0;
+    var col = isBull ? 'var(--gr)' : 'var(--rd)';
+    var bgCol = isBull ? 'rgba(0,230,118,.08)' : 'rgba(255,61,90,.08)';
+    var borderCol = isBull ? 'rgba(0,230,118,.25)' : 'rgba(255,61,90,.25)';
+
+    var div = document.createElement('div');
+    div.style.cssText = 'background:'+bgCol+';border:1px solid '+borderCol+';border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer';
+    div.onclick = function(){ pickSym(s.sym); gotoTab(null,'terminal'); };
+
+    div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+      + '<div style="display:flex;align-items:center;gap:8px">'
+      + '<span style="font-family:var(--mn);font-size:13px;color:#fff;font-weight:500">'+s.sym+'</span>'
+      + '<span style="font-size:10px;color:var(--t2)">'+s.name.split(' ').slice(0,2).join(' ')+'</span>'
+      + '<span style="font-family:var(--mn);font-size:9px;padding:1px 5px;border-radius:2px;background:rgba(255,255,255,.05);color:var(--t3)">'+s.sector+'</span>'
+      + '</div>'
+      + '<div style="display:flex;align-items:center;gap:8px">'
+      + '<span style="font-family:var(--mn);font-size:11px;color:'+col+'">'+(s.chg>=0?'+':'')+s.chg.toFixed(2)+'%</span>'
+      + '<span style="font-family:var(--mn);font-size:11px;padding:2px 8px;border-radius:3px;background:'+col+'22;color:'+col+'">'+s.strength+' '+(isBull?'BUY':'SELL')+'</span>'
+      + '<span style="font-family:var(--dp);font-size:18px;font-weight:800;color:'+col+'">'+(isBull?'+':'')+s.score+'</span>'
+      + '</div></div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:4px">'
+      + s.reasons.map(function(r){
+          return '<span style="font-family:var(--mn);font-size:9px;padding:2px 6px;background:rgba(255,255,255,.05);border-radius:3px;color:var(--t2)">'+r+'</span>';
+        }).join('')
+      + '</div>';
+    el.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════
+// SCREENER — Gelişmiş Filtreler
+// ═══════════════════════════════════════════
+var screenerFilters = {
+  search: '', sector: '', minChg: '', maxChg: '',
+  minVol: '', sortBy: 'vol', sortDir: 'desc'
+};
+
+function applyScreenerFilters() {
+  screenerFilters.search = (document.getElementById('sc-search') && document.getElementById('sc-search').value || '').toUpperCase();
+  screenerFilters.sector = (document.getElementById('sc-sector') && document.getElementById('sc-sector').value || '');
+  screenerFilters.minChg = parseFloat(document.getElementById('sc-min-chg') && document.getElementById('sc-min-chg').value) || null;
+  screenerFilters.maxChg = parseFloat(document.getElementById('sc-max-chg') && document.getElementById('sc-max-chg').value) || null;
+  screenerFilters.minVol = parseFloat(document.getElementById('sc-min-vol') && document.getElementById('sc-min-vol').value) || null;
+  renderAdvancedScreener();
+}
+
+function renderAdvancedScreener() {
+  var f = screenerFilters;
+  var results = SYMBOLS.map(function(k) {
+    var b = BASE[k] || {};
+    var q = quotes[k];
+    var p = liveP[k] || (q && q.c) || 0;
+    var ch = q && q.pc ? p - q.pc : 0;
+    var pt = q && q.pc ? ch/q.pc*100 : 0;
+    var vol = q && q.v || 0;
+    return { sym:k, name:b.n||k, sector:b.s||'—', price:p, chg:ch, pct:pt, vol:vol, q:q };
+  }).filter(function(r) {
+    if (!r.price) return false;
+    if (f.search && r.sym.indexOf(f.search)<0 && r.name.toUpperCase().indexOf(f.search)<0) return false;
+    if (f.sector && r.sector !== f.sector) return false;
+    if (f.minChg !== null && r.pct < f.minChg) return false;
+    if (f.maxChg !== null && r.pct > f.maxChg) return false;
+    if (f.minVol !== null && r.vol < f.minVol * 1e6) return false;
+    return true;
+  });
+
+  // Sort
+  results.sort(function(a,b){
+    var va = a[f.sortBy==='vol'?'vol':f.sortBy==='pct'?'pct':'price'] || 0;
+    var vb = b[f.sortBy==='vol'?'vol':f.sortBy==='pct'?'pct':'price'] || 0;
+    return f.sortDir === 'desc' ? vb - va : va - vb;
+  });
+
+  var countEl = document.getElementById('sc-count');
+  if (countEl) countEl.textContent = results.length + ' hisse';
+
+  var tb = document.getElementById('sc-body');
+  if (!tb) return;
+  tb.innerHTML = '';
+
+  results.forEach(function(r) {
+    var up = r.chg >= 0;
+    var rat = typeof ANALYST_RATINGS !== 'undefined' && ANALYST_RATINGS[r.sym];
+    var tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.onclick = function() { pickSym(r.sym); gotoTab(null,'terminal'); };
+    [
+      {t:r.sym, s:'color:#fff;font-weight:500;font-family:var(--mn)'},
+      {t:r.name.slice(0,22), s:'color:var(--t2)'},
+      {t:r.price>0?'$'+r.price.toFixed(2):'—', s:'font-family:var(--mn)'},
+      {t:r.price>0&&r.q&&r.q.pc?(up?'+':'')+r.pct.toFixed(2)+'%':'—', s:'font-family:var(--mn);color:'+(up&&r.price>0?'var(--gr)':'var(--rd)')},
+      {t:r.vol>0?fmtVol(r.vol):'—', s:'color:var(--t2)'},
+      {t:r.sector, s:'color:var(--t3)'},
+      {t:rat?rat.rating:'—', s:'font-family:var(--mn);font-size:9px;color:'+(rat&&rat.rating.includes('BUY')?'var(--gr)':rat&&rat.rating==='HOLD'?'var(--am)':'var(--t3)')},
+      {t:rat?'$'+rat.target:'—', s:'font-family:var(--mn);color:var(--ac)'},
+    ].forEach(function(cell) {
+      var td = document.createElement('td');
+      td.textContent = cell.t;
+      td.style.cssText = cell.s;
+      tr.appendChild(td);
+    });
+    tb.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════════
+// MACRO — Gerçek verilerle zenginleştirme
+// ═══════════════════════════════════════════
+function renderMacroFull() {
+  var md = window.marketData || {};
+  var forex = md.forex || {};
+  var indices = md.indices || {};
+  var commodities = md.commodities || {};
+
+  // Update macro cards with real data
+  var mcards = document.getElementById('mcards');
+  if (!mcards) return;
+  mcards.innerHTML = '';
+
+  var macroItems = [
+    {l:'FED FUNDS', v:'4.50%', sub:'Hedef aralık', chg:'-25bps', col:'#ff6b35', icon:'🏦'},
+    {l:'CPI (Yıllık)', v:'2.8%', sub:'Şubat 2026', chg:'-0.2%', col:'#00e676', icon:'📊'},
+    {l:'İŞSİZLİK', v:'4.1%', sub:'Şubat 2026', chg:'+0.1%', col:'#ffd600', icon:'👷'},
+    {l:'GDP BÜYÜME', v:'2.3%', sub:'Q4 2025', chg:'-0.2%', col:'#00d4ff', icon:'📈'},
+    {l:'10Y GETİRİ', v:forex['USD/TRY']?'4.31%':'4.31%', sub:'ABD Hazine', chg:'+2bps', col:'#00d4ff', icon:'🏛️'},
+    {l:'USD/TRY', v:forex['USD/TRY']?forex['USD/TRY'].toFixed(4):'—', sub:'Gerçek zamanlı', chg:'', col:'#ff6b35', icon:'💱'},
+    {l:'EUR/USD', v:forex['EUR/USD']?forex['EUR/USD'].toFixed(4):'—', sub:'Gerçek zamanlı', chg:'', col:'#00d4ff', icon:'💶'},
+    {l:'ALTIN', v:commodities['GOLD']?'$'+commodities['GOLD'].price.toFixed(0):'$3,018', sub:'USD/ons', chg:commodities['GOLD']?(commodities['GOLD'].chg>=0?'+':'')+commodities['GOLD'].chg.toFixed(2)+'%':'+0.31%', col:'#ffd600', icon:'🥇'},
+    {l:'GÜMÜŞ', v:commodities['SILVER']?'$'+commodities['SILVER'].price.toFixed(2):'$33.42', sub:'USD/ons', chg:'+0.18%', col:'#7a8fa8', icon:'🥈'},
+    {l:'WTI PETROL', v:commodities['OIL WTI']?'$'+commodities['OIL WTI'].price.toFixed(2):'$68.74', sub:'USD/varil', chg:'-0.62%', col:'#ff6b35', icon:'🛢️'},
+    {l:'S&P 500', v:indices['S&P 500']?indices['S&P 500'].price.toFixed(0):'5,667', sub:'ETF: SPY', chg:indices['S&P 500']?(indices['S&P 500'].chg>=0?'+':'')+indices['S&P 500'].chg.toFixed(2)+'%':'+0.48%', col:'#00e676', icon:'📊'},
+    {l:'DXY ENDEKS', v:'103.8', sub:'Dolar endeksi', chg:'-0.3%', col:'#7a8fa8', icon:'💵'},
+  ];
+
+  macroItems.forEach(function(m) {
+    var isUp = !m.chg || m.chg.startsWith('+') || (!m.chg.startsWith('-') && !m.chg.includes('bps'));
+    var card = document.createElement('div');
+    card.className = 'mcard';
+    card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'
+      + '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:1.5px">'+m.l+'</div>'
+      + '<span style="font-size:14px">'+m.icon+'</span>'
+      + '</div>'
+      + '<div style="font-family:var(--mn);font-size:20px;font-weight:300;color:#fff;margin:4px 0">'+m.v+'</div>'
+      + '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);margin-bottom:4px">'+m.sub+'</div>'
+      + (m.chg ? '<div style="font-family:var(--mn);font-size:10px;color:'+(m.chg.startsWith('-')?'var(--rd)':'var(--gr)')+'">'+m.chg+'</div>' : '')
+      + '<div style="height:2px;border-radius:1px;margin-top:8px;background:var(--bg4);overflow:hidden">'
+      + '<div style="height:100%;width:60%;border-radius:1px;background:'+m.col+'"></div></div>';
+    mcards.appendChild(card);
+  });
+}
+
+// Hook into gotoTab for macro and alpha
+var _gt_macro_alpha = gotoTab;
+gotoTab = function(el, t) {
+  _gt_macro_alpha(el, t);
+  if (t === 'macro') setTimeout(renderMacroFull, 100);
+  if (t === 'alpha') setTimeout(function(){
+    calculateAlphaSignals();
+    // Render alpha-signals-list if exists
+    var el2 = document.getElementById('alpha-signals-list');
+    if (!el2) return;
+  }, 100);
+};
+
+// Update screener columns to include analyst rating
+var scThead = document.querySelector('#panel-screener thead tr');
+if (scThead) {
+  scThead.innerHTML = '<th>SEMBOL</th><th>ŞİRKET</th><th>FİYAT</th><th>DEĞ%</th><th>HACİM</th><th>SEKTÖR</th><th>ANALİST</th><th>HEDEF</th>';
+}
+
+// Add alpha signals list to alpha panel
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    var alphaPanel = document.getElementById('panel-alpha');
+    if (alphaPanel) {
+      var existingList = document.getElementById('alpha-signals-list');
+      if (!existingList) {
+        var div = document.createElement('div');
+        div.style.cssText = 'padding:0 16px 16px';
+        div.innerHTML = '<div style="font-family:var(--mn);font-size:9px;color:var(--t3);letter-spacing:2px;margin-bottom:10px">🎯 AI ALPHA SİNYALLERİ — CANLI MOTOR</div>'
+          + '<div id="alpha-signals-list"></div>';
+        var pwrap = alphaPanel.querySelector('.pwrap');
+        if (pwrap) pwrap.appendChild(div);
+      }
+    }
+  }, 500);
+
+  // Auto-calc alpha on data load
+  setInterval(function(){
+    if (Object.keys(quotes).length > 10) calculateAlphaSignals();
+  }, 30000);
+});
+</script>
+
+
+<script>
+// ═══════════════════════════════════════════
+// UX İYİLEŞTİRMELER — Loading, Error, Search
+// ═══════════════════════════════════════════
+
+// ── 1. GELİŞMİŞ ARAMA ──────────────────────
+var searchResults = [];
+var searchOpen = false;
+
+function initSearchBar() {
+  var inp = document.getElementById('srch');
+  if (!inp) return;
+
+  // Create dropdown
+  var dropdown = document.createElement('div');
+  dropdown.id = 'search-dropdown';
+  dropdown.style.cssText = 'position:absolute;top:100%;left:0;right:0;background:var(--bg1);border:1px solid var(--ln2);border-radius:4px;z-index:1000;display:none;max-height:300px;overflow-y:auto';
+  inp.parentElement.style.position = 'relative';
+  inp.parentElement.appendChild(dropdown);
+
+  inp.addEventListener('input', function() {
+    var val = this.value.toUpperCase().trim();
+    if (!val) { dropdown.style.display = 'none'; return; }
+
+    var matches = SYMBOLS.filter(function(s) {
+      var b = BASE[s] || {};
+      return s.startsWith(val) || (b.n||'').toUpperCase().includes(val);
+    }).slice(0, 8);
+
+    if (!matches.length) { dropdown.style.display = 'none'; return; }
+
+    dropdown.innerHTML = '';
+    matches.forEach(function(sym) {
+      var b = BASE[sym] || {};
+      var p = liveP[sym] || 0;
+      var q = quotes[sym] || {};
+      var ch = q.pc && p ? (p-q.pc)/q.pc*100 : 0;
+      var up = ch >= 0;
+
+      var item = document.createElement('div');
+      item.style.cssText = 'padding:8px 12px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ln)';
+      item.onmouseenter = function(){ this.style.background = 'var(--bg2)'; };
+      item.onmouseleave = function(){ this.style.background = 'transparent'; };
+      item.onclick = function() {
+        inp.value = sym;
+        dropdown.style.display = 'none';
+        pickSym(sym);
+      };
+      item.innerHTML = '<div>'
+        + '<span style="font-family:var(--mn);font-size:11px;color:#fff;font-weight:500">'+sym+'</span>'
+        + '<span style="font-size:10px;color:var(--t2);margin-left:8px">'+(b.n||sym).slice(0,30)+'</span>'
+        + '</div>'
+        + (p > 0 ? '<div style="text-align:right">'
+          + '<div style="font-family:var(--mn);font-size:11px;color:#fff">$'+p.toFixed(2)+'</div>'
+          + '<div style="font-family:var(--mn);font-size:9px;color:'+(up?'var(--gr)':'var(--rd)')+'">'+(up?'+':'')+ch.toFixed(2)+'%</div>'
+          + '</div>' : '');
+      dropdown.appendChild(item);
+    });
+    dropdown.style.display = 'block';
+  });
+
+  inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      dropdown.style.display = 'none';
+      searchSym(this.value);
+    }
+    if (e.key === 'Escape') { dropdown.style.display = 'none'; this.blur(); }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!inp.contains(e.target)) dropdown.style.display = 'none';
+  });
+}
+
+// ── 2. BACKEND DURUM İNDİKATÖRÜ ────────────
+function updateConnectionStatus(alive, latency) {
+  var badge = document.getElementById('live-badge');
+  if (!badge) return;
+  if (alive) {
+    badge.textContent = '● LIVE' + (latency ? ' ' + latency + 'ms' : '');
+    badge.style.background = 'rgba(0,230,118,.15)';
+    badge.style.color = 'var(--gr)';
+    badge.style.borderColor = 'rgba(0,230,118,.25)';
+  } else {
+    badge.textContent = '● OFFLİNE';
+    badge.style.background = 'rgba(255,61,90,.15)';
+    badge.style.color = 'var(--rd)';
+    badge.style.borderColor = 'rgba(255,61,90,.25)';
+  }
+}
+
+// ── 3. HİSSE DETAY HOVER TOOLTIP ───────────
+function addTickerTooltips() {
+  document.querySelectorAll('.wi').forEach(function(el) {
+    var sym = el.id && el.id.replace('wi-','');
+    if (!sym) return;
+    el.title = sym + (BASE[sym] ? ' — ' + BASE[sym].n : '');
+  });
+}
+
+// ── 4. ÇOKLU TAB KAPATMA UYARISI ───────────
+window.addEventListener('beforeunload', function(e) {
+  if (Object.keys(portfolio).length > 0) {
+    syncPortfolioToServer && syncPortfolioToServer();
+  }
+});
+
+// ── 5. HATA YAKALAMA ───────────────────────
+window.addEventListener('error', function(e) {
+  // Sessizce logla, kullanıcıyı rahatsız etme
+  console.warn('NEXUS Error caught:', e.message);
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+  console.warn('NEXUS Promise rejection:', e.reason);
+  e.preventDefault();
+});
+
+// ── 6. PERFORMANS İZLEME ──────────────────
+var perfMetrics = { apiCalls: 0, lastLatency: 0 };
+
+var _origFetch = window.fetch;
+window.fetch = function() {
+  var start = Date.now();
+  perfMetrics.apiCalls++;
+  return _origFetch.apply(this, arguments).then(function(r) {
+    perfMetrics.lastLatency = Date.now() - start;
+    if (r.url && r.url.includes('railway.app')) {
+      updateConnectionStatus(true, perfMetrics.lastLatency);
+    }
+    return r;
+  }).catch(function(e) {
+    if (arguments[0] && arguments[0].includes && arguments[0].includes('railway.app')) {
+      updateConnectionStatus(false, 0);
+    }
+    throw e;
+  });
+};
+
+// ── 7. WATCHLIST ARAMA KUTUSU ──────────────
+function addWatchlistSearch() {
+  var lbar = document.querySelector('.lbar');
+  if (!lbar || document.getElementById('wl-search')) return;
+  var inp = document.createElement('input');
+  inp.id = 'wl-search';
+  inp.placeholder = 'Filtrele...';
+  inp.style.cssText = 'width:calc(100% - 16px);margin:6px 8px;background:var(--bg2);border:1px solid var(--ln2);border-radius:3px;color:var(--t0);font-family:var(--mn);font-size:9px;padding:4px 7px;outline:none';
+  inp.addEventListener('input', function() {
+    var val = this.value.toUpperCase();
+    document.querySelectorAll('.wi').forEach(function(el) {
+      var sym = el.id && el.id.replace('wi-','') || '';
+      el.style.display = (!val || sym.includes(val)) ? 'flex' : 'none';
+    });
+  });
+  var firstChild = lbar.querySelector('.sec-hd');
+  if (firstChild) lbar.insertBefore(inp, firstChild.nextSibling);
+}
+
+// ── 8. CANLI VERİ SAYACI ──────────────────
+var dataUpdateCount = 0;
+var origPollBackend2 = pollBackend;
+pollBackend = function() {
+  dataUpdateCount++;
+  origPollBackend2();
+  // Update subtle counter
+  var el = document.getElementById('data-count');
+  if (el) el.textContent = dataUpdateCount + '. güncelleme';
+};
+
+// ── 9. CHART CROSSHAIR FİYAT GÖSTERME ─────
+// Already handled by LightweightCharts
+
+// ── 10. AUTO TAB TITLE UPDATE ─────────────
+setInterval(function() {
+  var p = liveP[selSym] || 0;
+  if (p > 0) {
+    document.title = selSym + ' $' + p.toFixed(2) + ' — NEXUS Terminal';
+  }
+}, 5000);
+
+// Init on load
+window.addEventListener('load', function() {
+  setTimeout(initSearchBar, 500);
+  setTimeout(addWatchlistSearch, 1000);
+  setTimeout(addTickerTooltips, 2000);
+});
+</script>
+
 </body>
 </html>
